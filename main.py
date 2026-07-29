@@ -54,9 +54,19 @@ def _dir_outputs() -> str:
     return str(tmp)
 
 
+# Vercel define VERCEL=1 — nunca tenta gravar em data/jobs (FS read-only).
+_na_vercel = bool(os.getenv("VERCEL"))
 _usa_supabase = supabase_configurado()
+
+if _na_vercel and not _usa_supabase:
+    raise RuntimeError(
+        "Deploy na Vercel exige SUPABASE_URL e SUPABASE_SERVICE_ROLE_KEY "
+        "em Environment Variables (Production) + Redeploy. "
+        "Veja sql/supabase_schema.sql e DEPLOY.md."
+    )
+
 if _usa_supabase:
-    logger.info("Persistência: Supabase")
+    logger.info("Persistência: Supabase (vercel=%s)", _na_vercel)
     job_store = JobStore(usar_supabase=True)
 else:
     jobs_dir = _garantir_dir(Path("data/jobs"))
@@ -101,7 +111,7 @@ routes.configurar_deps(
     outputs_dir_=_outputs,
 )
 
-app = FastAPI(title="LLMO Vértice Carioca", version="2.1.0")
+app = FastAPI(title="LLMO Vértice Carioca", version="2.2.0")
 
 app.add_middleware(
     CORSMiddleware,

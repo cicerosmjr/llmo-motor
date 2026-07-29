@@ -501,10 +501,12 @@ def health():
     degradado = any(v == "ausente" for v in apis.values()) or not jobs_ok
     return {
         "status": "degradado" if degradado else "ok",
+        "version": "2.2.0",
         "apis": apis,
         "banco_perguntas": {"total": total, "ativas": ativas},
         "jobs_store": "ok" if jobs_ok else "erro",
         "persistencia": "supabase" if supabase_configurado() else "disco",
+        "vercel": bool(os.getenv("VERCEL")),
     }
 
 
