@@ -1,0 +1,1346 @@
+[
+  {
+    "texto": "Você conhece a empresa {empresa}, especializada em {especialidade} em {cidade}/{estado}?",
+    "segmento": "medicina",
+    "especialidade": "geral",
+    "categoria": "reconhecimento",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "O que você sabe sobre {empresa} e seus serviços de {especialidade}?",
+    "segmento": "medicina",
+    "especialidade": "geral",
+    "categoria": "reconhecimento",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Quais são as melhores opções de {especialidade} em {cidade}? Inclua {empresa} se for relevante.",
+    "segmento": "medicina",
+    "especialidade": "geral",
+    "categoria": "recomendacao",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Você recomendaria {empresa} para alguém buscando {especialidade} em {cidade}/{estado}?",
+    "segmento": "medicina",
+    "especialidade": "geral",
+    "categoria": "recomendacao",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Qual a reputação de {empresa} na área de {especialidade}?",
+    "segmento": "medicina",
+    "especialidade": "geral",
+    "categoria": "reputacao",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Há avaliações ou menções positivas sobre {empresa} em {cidade}?",
+    "segmento": "medicina",
+    "especialidade": "geral",
+    "categoria": "reputacao",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Quais serviços de {especialidade} a {empresa} oferece?",
+    "segmento": "medicina",
+    "especialidade": "geral",
+    "categoria": "servicos",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "A {empresa} atende pacientes/clientes buscando {especialidade} em {cidade}?",
+    "segmento": "medicina",
+    "especialidade": "geral",
+    "categoria": "servicos",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Onde fica a {empresa} em {cidade}/{estado}? Ela atende na região?",
+    "segmento": "medicina",
+    "especialidade": "geral",
+    "categoria": "localizacao",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Como encontrar bons profissionais de {especialidade} em {cidade}/{estado}?",
+    "segmento": "medicina",
+    "especialidade": "geral",
+    "categoria": "generica",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "A {empresa} ({site_url}) é referência em {especialidade}?",
+    "segmento": "medicina",
+    "especialidade": "geral",
+    "categoria": "reconhecimento",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Liste clínicas/escritórios de {especialidade} em {cidade}, incluindo {empresa} se souber.",
+    "segmento": "medicina",
+    "especialidade": "geral",
+    "categoria": "recomendacao",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Você conhece a empresa {empresa}, especializada em {especialidade} em {cidade}/{estado}?",
+    "segmento": "medicina",
+    "especialidade": "cirurgia plástica",
+    "categoria": "reconhecimento",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "O que você sabe sobre {empresa} e seus serviços de {especialidade}?",
+    "segmento": "medicina",
+    "especialidade": "cirurgia plástica",
+    "categoria": "reconhecimento",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Quais são as melhores opções de {especialidade} em {cidade}? Inclua {empresa} se for relevante.",
+    "segmento": "medicina",
+    "especialidade": "cirurgia plástica",
+    "categoria": "recomendacao",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Você recomendaria {empresa} para alguém buscando {especialidade} em {cidade}/{estado}?",
+    "segmento": "medicina",
+    "especialidade": "cirurgia plástica",
+    "categoria": "recomendacao",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Qual a reputação de {empresa} na área de {especialidade}?",
+    "segmento": "medicina",
+    "especialidade": "cirurgia plástica",
+    "categoria": "reputacao",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Há avaliações ou menções positivas sobre {empresa} em {cidade}?",
+    "segmento": "medicina",
+    "especialidade": "cirurgia plástica",
+    "categoria": "reputacao",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Quais serviços de {especialidade} a {empresa} oferece?",
+    "segmento": "medicina",
+    "especialidade": "cirurgia plástica",
+    "categoria": "servicos",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "A {empresa} atende pacientes/clientes buscando {especialidade} em {cidade}?",
+    "segmento": "medicina",
+    "especialidade": "cirurgia plástica",
+    "categoria": "servicos",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Onde fica a {empresa} em {cidade}/{estado}? Ela atende na região?",
+    "segmento": "medicina",
+    "especialidade": "cirurgia plástica",
+    "categoria": "localizacao",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Como encontrar bons profissionais de {especialidade} em {cidade}/{estado}?",
+    "segmento": "medicina",
+    "especialidade": "cirurgia plástica",
+    "categoria": "generica",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "A {empresa} ({site_url}) é referência em {especialidade}?",
+    "segmento": "medicina",
+    "especialidade": "cirurgia plástica",
+    "categoria": "reconhecimento",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Liste clínicas/escritórios de {especialidade} em {cidade}, incluindo {empresa} se souber.",
+    "segmento": "medicina",
+    "especialidade": "cirurgia plástica",
+    "categoria": "recomendacao",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Você conhece a empresa {empresa}, especializada em {especialidade} em {cidade}/{estado}?",
+    "segmento": "medicina",
+    "especialidade": "dermatologia",
+    "categoria": "reconhecimento",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "O que você sabe sobre {empresa} e seus serviços de {especialidade}?",
+    "segmento": "medicina",
+    "especialidade": "dermatologia",
+    "categoria": "reconhecimento",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Quais são as melhores opções de {especialidade} em {cidade}? Inclua {empresa} se for relevante.",
+    "segmento": "medicina",
+    "especialidade": "dermatologia",
+    "categoria": "recomendacao",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Você recomendaria {empresa} para alguém buscando {especialidade} em {cidade}/{estado}?",
+    "segmento": "medicina",
+    "especialidade": "dermatologia",
+    "categoria": "recomendacao",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Qual a reputação de {empresa} na área de {especialidade}?",
+    "segmento": "medicina",
+    "especialidade": "dermatologia",
+    "categoria": "reputacao",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Há avaliações ou menções positivas sobre {empresa} em {cidade}?",
+    "segmento": "medicina",
+    "especialidade": "dermatologia",
+    "categoria": "reputacao",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Quais serviços de {especialidade} a {empresa} oferece?",
+    "segmento": "medicina",
+    "especialidade": "dermatologia",
+    "categoria": "servicos",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "A {empresa} atende pacientes/clientes buscando {especialidade} em {cidade}?",
+    "segmento": "medicina",
+    "especialidade": "dermatologia",
+    "categoria": "servicos",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Onde fica a {empresa} em {cidade}/{estado}? Ela atende na região?",
+    "segmento": "medicina",
+    "especialidade": "dermatologia",
+    "categoria": "localizacao",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Como encontrar bons profissionais de {especialidade} em {cidade}/{estado}?",
+    "segmento": "medicina",
+    "especialidade": "dermatologia",
+    "categoria": "generica",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "A {empresa} ({site_url}) é referência em {especialidade}?",
+    "segmento": "medicina",
+    "especialidade": "dermatologia",
+    "categoria": "reconhecimento",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Liste clínicas/escritórios de {especialidade} em {cidade}, incluindo {empresa} se souber.",
+    "segmento": "medicina",
+    "especialidade": "dermatologia",
+    "categoria": "recomendacao",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Você conhece a empresa {empresa}, especializada em {especialidade} em {cidade}/{estado}?",
+    "segmento": "medicina",
+    "especialidade": "odontologia",
+    "categoria": "reconhecimento",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "O que você sabe sobre {empresa} e seus serviços de {especialidade}?",
+    "segmento": "medicina",
+    "especialidade": "odontologia",
+    "categoria": "reconhecimento",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Quais são as melhores opções de {especialidade} em {cidade}? Inclua {empresa} se for relevante.",
+    "segmento": "medicina",
+    "especialidade": "odontologia",
+    "categoria": "recomendacao",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Você recomendaria {empresa} para alguém buscando {especialidade} em {cidade}/{estado}?",
+    "segmento": "medicina",
+    "especialidade": "odontologia",
+    "categoria": "recomendacao",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Qual a reputação de {empresa} na área de {especialidade}?",
+    "segmento": "medicina",
+    "especialidade": "odontologia",
+    "categoria": "reputacao",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Há avaliações ou menções positivas sobre {empresa} em {cidade}?",
+    "segmento": "medicina",
+    "especialidade": "odontologia",
+    "categoria": "reputacao",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Quais serviços de {especialidade} a {empresa} oferece?",
+    "segmento": "medicina",
+    "especialidade": "odontologia",
+    "categoria": "servicos",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "A {empresa} atende pacientes/clientes buscando {especialidade} em {cidade}?",
+    "segmento": "medicina",
+    "especialidade": "odontologia",
+    "categoria": "servicos",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Onde fica a {empresa} em {cidade}/{estado}? Ela atende na região?",
+    "segmento": "medicina",
+    "especialidade": "odontologia",
+    "categoria": "localizacao",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Como encontrar bons profissionais de {especialidade} em {cidade}/{estado}?",
+    "segmento": "medicina",
+    "especialidade": "odontologia",
+    "categoria": "generica",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "A {empresa} ({site_url}) é referência em {especialidade}?",
+    "segmento": "medicina",
+    "especialidade": "odontologia",
+    "categoria": "reconhecimento",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Liste clínicas/escritórios de {especialidade} em {cidade}, incluindo {empresa} se souber.",
+    "segmento": "medicina",
+    "especialidade": "odontologia",
+    "categoria": "recomendacao",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Você conhece a empresa {empresa}, especializada em {especialidade} em {cidade}/{estado}?",
+    "segmento": "medicina",
+    "especialidade": "psiquiatria",
+    "categoria": "reconhecimento",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "O que você sabe sobre {empresa} e seus serviços de {especialidade}?",
+    "segmento": "medicina",
+    "especialidade": "psiquiatria",
+    "categoria": "reconhecimento",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Quais são as melhores opções de {especialidade} em {cidade}? Inclua {empresa} se for relevante.",
+    "segmento": "medicina",
+    "especialidade": "psiquiatria",
+    "categoria": "recomendacao",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Você recomendaria {empresa} para alguém buscando {especialidade} em {cidade}/{estado}?",
+    "segmento": "medicina",
+    "especialidade": "psiquiatria",
+    "categoria": "recomendacao",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Qual a reputação de {empresa} na área de {especialidade}?",
+    "segmento": "medicina",
+    "especialidade": "psiquiatria",
+    "categoria": "reputacao",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Há avaliações ou menções positivas sobre {empresa} em {cidade}?",
+    "segmento": "medicina",
+    "especialidade": "psiquiatria",
+    "categoria": "reputacao",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Quais serviços de {especialidade} a {empresa} oferece?",
+    "segmento": "medicina",
+    "especialidade": "psiquiatria",
+    "categoria": "servicos",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "A {empresa} atende pacientes/clientes buscando {especialidade} em {cidade}?",
+    "segmento": "medicina",
+    "especialidade": "psiquiatria",
+    "categoria": "servicos",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Onde fica a {empresa} em {cidade}/{estado}? Ela atende na região?",
+    "segmento": "medicina",
+    "especialidade": "psiquiatria",
+    "categoria": "localizacao",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Como encontrar bons profissionais de {especialidade} em {cidade}/{estado}?",
+    "segmento": "medicina",
+    "especialidade": "psiquiatria",
+    "categoria": "generica",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "A {empresa} ({site_url}) é referência em {especialidade}?",
+    "segmento": "medicina",
+    "especialidade": "psiquiatria",
+    "categoria": "reconhecimento",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Liste clínicas/escritórios de {especialidade} em {cidade}, incluindo {empresa} se souber.",
+    "segmento": "medicina",
+    "especialidade": "psiquiatria",
+    "categoria": "recomendacao",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Você conhece a empresa {empresa}, especializada em {especialidade} em {cidade}/{estado}?",
+    "segmento": "advocacia",
+    "especialidade": "geral",
+    "categoria": "reconhecimento",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "O que você sabe sobre {empresa} e seus serviços de {especialidade}?",
+    "segmento": "advocacia",
+    "especialidade": "geral",
+    "categoria": "reconhecimento",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Quais são as melhores opções de {especialidade} em {cidade}? Inclua {empresa} se for relevante.",
+    "segmento": "advocacia",
+    "especialidade": "geral",
+    "categoria": "recomendacao",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Você recomendaria {empresa} para alguém buscando {especialidade} em {cidade}/{estado}?",
+    "segmento": "advocacia",
+    "especialidade": "geral",
+    "categoria": "recomendacao",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Qual a reputação de {empresa} na área de {especialidade}?",
+    "segmento": "advocacia",
+    "especialidade": "geral",
+    "categoria": "reputacao",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Há avaliações ou menções positivas sobre {empresa} em {cidade}?",
+    "segmento": "advocacia",
+    "especialidade": "geral",
+    "categoria": "reputacao",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Quais serviços de {especialidade} a {empresa} oferece?",
+    "segmento": "advocacia",
+    "especialidade": "geral",
+    "categoria": "servicos",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "A {empresa} atende pacientes/clientes buscando {especialidade} em {cidade}?",
+    "segmento": "advocacia",
+    "especialidade": "geral",
+    "categoria": "servicos",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Onde fica a {empresa} em {cidade}/{estado}? Ela atende na região?",
+    "segmento": "advocacia",
+    "especialidade": "geral",
+    "categoria": "localizacao",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Como encontrar bons profissionais de {especialidade} em {cidade}/{estado}?",
+    "segmento": "advocacia",
+    "especialidade": "geral",
+    "categoria": "generica",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "A {empresa} ({site_url}) é referência em {especialidade}?",
+    "segmento": "advocacia",
+    "especialidade": "geral",
+    "categoria": "reconhecimento",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Liste clínicas/escritórios de {especialidade} em {cidade}, incluindo {empresa} se souber.",
+    "segmento": "advocacia",
+    "especialidade": "geral",
+    "categoria": "recomendacao",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Você conhece a empresa {empresa}, especializada em {especialidade} em {cidade}/{estado}?",
+    "segmento": "advocacia",
+    "especialidade": "direito tributário",
+    "categoria": "reconhecimento",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "O que você sabe sobre {empresa} e seus serviços de {especialidade}?",
+    "segmento": "advocacia",
+    "especialidade": "direito tributário",
+    "categoria": "reconhecimento",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Quais são as melhores opções de {especialidade} em {cidade}? Inclua {empresa} se for relevante.",
+    "segmento": "advocacia",
+    "especialidade": "direito tributário",
+    "categoria": "recomendacao",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Você recomendaria {empresa} para alguém buscando {especialidade} em {cidade}/{estado}?",
+    "segmento": "advocacia",
+    "especialidade": "direito tributário",
+    "categoria": "recomendacao",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Qual a reputação de {empresa} na área de {especialidade}?",
+    "segmento": "advocacia",
+    "especialidade": "direito tributário",
+    "categoria": "reputacao",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Há avaliações ou menções positivas sobre {empresa} em {cidade}?",
+    "segmento": "advocacia",
+    "especialidade": "direito tributário",
+    "categoria": "reputacao",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Quais serviços de {especialidade} a {empresa} oferece?",
+    "segmento": "advocacia",
+    "especialidade": "direito tributário",
+    "categoria": "servicos",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "A {empresa} atende pacientes/clientes buscando {especialidade} em {cidade}?",
+    "segmento": "advocacia",
+    "especialidade": "direito tributário",
+    "categoria": "servicos",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Onde fica a {empresa} em {cidade}/{estado}? Ela atende na região?",
+    "segmento": "advocacia",
+    "especialidade": "direito tributário",
+    "categoria": "localizacao",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Como encontrar bons profissionais de {especialidade} em {cidade}/{estado}?",
+    "segmento": "advocacia",
+    "especialidade": "direito tributário",
+    "categoria": "generica",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "A {empresa} ({site_url}) é referência em {especialidade}?",
+    "segmento": "advocacia",
+    "especialidade": "direito tributário",
+    "categoria": "reconhecimento",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Liste clínicas/escritórios de {especialidade} em {cidade}, incluindo {empresa} se souber.",
+    "segmento": "advocacia",
+    "especialidade": "direito tributário",
+    "categoria": "recomendacao",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Você conhece a empresa {empresa}, especializada em {especialidade} em {cidade}/{estado}?",
+    "segmento": "advocacia",
+    "especialidade": "direito imobiliário",
+    "categoria": "reconhecimento",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "O que você sabe sobre {empresa} e seus serviços de {especialidade}?",
+    "segmento": "advocacia",
+    "especialidade": "direito imobiliário",
+    "categoria": "reconhecimento",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Quais são as melhores opções de {especialidade} em {cidade}? Inclua {empresa} se for relevante.",
+    "segmento": "advocacia",
+    "especialidade": "direito imobiliário",
+    "categoria": "recomendacao",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Você recomendaria {empresa} para alguém buscando {especialidade} em {cidade}/{estado}?",
+    "segmento": "advocacia",
+    "especialidade": "direito imobiliário",
+    "categoria": "recomendacao",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Qual a reputação de {empresa} na área de {especialidade}?",
+    "segmento": "advocacia",
+    "especialidade": "direito imobiliário",
+    "categoria": "reputacao",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Há avaliações ou menções positivas sobre {empresa} em {cidade}?",
+    "segmento": "advocacia",
+    "especialidade": "direito imobiliário",
+    "categoria": "reputacao",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Quais serviços de {especialidade} a {empresa} oferece?",
+    "segmento": "advocacia",
+    "especialidade": "direito imobiliário",
+    "categoria": "servicos",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "A {empresa} atende pacientes/clientes buscando {especialidade} em {cidade}?",
+    "segmento": "advocacia",
+    "especialidade": "direito imobiliário",
+    "categoria": "servicos",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Onde fica a {empresa} em {cidade}/{estado}? Ela atende na região?",
+    "segmento": "advocacia",
+    "especialidade": "direito imobiliário",
+    "categoria": "localizacao",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Como encontrar bons profissionais de {especialidade} em {cidade}/{estado}?",
+    "segmento": "advocacia",
+    "especialidade": "direito imobiliário",
+    "categoria": "generica",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "A {empresa} ({site_url}) é referência em {especialidade}?",
+    "segmento": "advocacia",
+    "especialidade": "direito imobiliário",
+    "categoria": "reconhecimento",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Liste clínicas/escritórios de {especialidade} em {cidade}, incluindo {empresa} se souber.",
+    "segmento": "advocacia",
+    "especialidade": "direito imobiliário",
+    "categoria": "recomendacao",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Você conhece a empresa {empresa}, especializada em {especialidade} em {cidade}/{estado}?",
+    "segmento": "advocacia",
+    "especialidade": "planejamento patrimonial",
+    "categoria": "reconhecimento",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "O que você sabe sobre {empresa} e seus serviços de {especialidade}?",
+    "segmento": "advocacia",
+    "especialidade": "planejamento patrimonial",
+    "categoria": "reconhecimento",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Quais são as melhores opções de {especialidade} em {cidade}? Inclua {empresa} se for relevante.",
+    "segmento": "advocacia",
+    "especialidade": "planejamento patrimonial",
+    "categoria": "recomendacao",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Você recomendaria {empresa} para alguém buscando {especialidade} em {cidade}/{estado}?",
+    "segmento": "advocacia",
+    "especialidade": "planejamento patrimonial",
+    "categoria": "recomendacao",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Qual a reputação de {empresa} na área de {especialidade}?",
+    "segmento": "advocacia",
+    "especialidade": "planejamento patrimonial",
+    "categoria": "reputacao",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Há avaliações ou menções positivas sobre {empresa} em {cidade}?",
+    "segmento": "advocacia",
+    "especialidade": "planejamento patrimonial",
+    "categoria": "reputacao",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Quais serviços de {especialidade} a {empresa} oferece?",
+    "segmento": "advocacia",
+    "especialidade": "planejamento patrimonial",
+    "categoria": "servicos",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "A {empresa} atende pacientes/clientes buscando {especialidade} em {cidade}?",
+    "segmento": "advocacia",
+    "especialidade": "planejamento patrimonial",
+    "categoria": "servicos",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Onde fica a {empresa} em {cidade}/{estado}? Ela atende na região?",
+    "segmento": "advocacia",
+    "especialidade": "planejamento patrimonial",
+    "categoria": "localizacao",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Como encontrar bons profissionais de {especialidade} em {cidade}/{estado}?",
+    "segmento": "advocacia",
+    "especialidade": "planejamento patrimonial",
+    "categoria": "generica",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "A {empresa} ({site_url}) é referência em {especialidade}?",
+    "segmento": "advocacia",
+    "especialidade": "planejamento patrimonial",
+    "categoria": "reconhecimento",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Liste clínicas/escritórios de {especialidade} em {cidade}, incluindo {empresa} se souber.",
+    "segmento": "advocacia",
+    "especialidade": "planejamento patrimonial",
+    "categoria": "recomendacao",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Você conhece a empresa {empresa}, especializada em {especialidade} em {cidade}/{estado}?",
+    "segmento": "advocacia",
+    "especialidade": "direito trabalhista",
+    "categoria": "reconhecimento",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "O que você sabe sobre {empresa} e seus serviços de {especialidade}?",
+    "segmento": "advocacia",
+    "especialidade": "direito trabalhista",
+    "categoria": "reconhecimento",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Quais são as melhores opções de {especialidade} em {cidade}? Inclua {empresa} se for relevante.",
+    "segmento": "advocacia",
+    "especialidade": "direito trabalhista",
+    "categoria": "recomendacao",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Você recomendaria {empresa} para alguém buscando {especialidade} em {cidade}/{estado}?",
+    "segmento": "advocacia",
+    "especialidade": "direito trabalhista",
+    "categoria": "recomendacao",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Qual a reputação de {empresa} na área de {especialidade}?",
+    "segmento": "advocacia",
+    "especialidade": "direito trabalhista",
+    "categoria": "reputacao",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Há avaliações ou menções positivas sobre {empresa} em {cidade}?",
+    "segmento": "advocacia",
+    "especialidade": "direito trabalhista",
+    "categoria": "reputacao",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Quais serviços de {especialidade} a {empresa} oferece?",
+    "segmento": "advocacia",
+    "especialidade": "direito trabalhista",
+    "categoria": "servicos",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "A {empresa} atende pacientes/clientes buscando {especialidade} em {cidade}?",
+    "segmento": "advocacia",
+    "especialidade": "direito trabalhista",
+    "categoria": "servicos",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Onde fica a {empresa} em {cidade}/{estado}? Ela atende na região?",
+    "segmento": "advocacia",
+    "especialidade": "direito trabalhista",
+    "categoria": "localizacao",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Como encontrar bons profissionais de {especialidade} em {cidade}/{estado}?",
+    "segmento": "advocacia",
+    "especialidade": "direito trabalhista",
+    "categoria": "generica",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "A {empresa} ({site_url}) é referência em {especialidade}?",
+    "segmento": "advocacia",
+    "especialidade": "direito trabalhista",
+    "categoria": "reconhecimento",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Liste clínicas/escritórios de {especialidade} em {cidade}, incluindo {empresa} se souber.",
+    "segmento": "advocacia",
+    "especialidade": "direito trabalhista",
+    "categoria": "recomendacao",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Você conhece a empresa {empresa}, especializada em {especialidade} em {cidade}/{estado}?",
+    "segmento": "psicologia",
+    "especialidade": "geral",
+    "categoria": "reconhecimento",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "O que você sabe sobre {empresa} e seus serviços de {especialidade}?",
+    "segmento": "psicologia",
+    "especialidade": "geral",
+    "categoria": "reconhecimento",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Quais são as melhores opções de {especialidade} em {cidade}? Inclua {empresa} se for relevante.",
+    "segmento": "psicologia",
+    "especialidade": "geral",
+    "categoria": "recomendacao",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Você recomendaria {empresa} para alguém buscando {especialidade} em {cidade}/{estado}?",
+    "segmento": "psicologia",
+    "especialidade": "geral",
+    "categoria": "recomendacao",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Qual a reputação de {empresa} na área de {especialidade}?",
+    "segmento": "psicologia",
+    "especialidade": "geral",
+    "categoria": "reputacao",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Há avaliações ou menções positivas sobre {empresa} em {cidade}?",
+    "segmento": "psicologia",
+    "especialidade": "geral",
+    "categoria": "reputacao",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Quais serviços de {especialidade} a {empresa} oferece?",
+    "segmento": "psicologia",
+    "especialidade": "geral",
+    "categoria": "servicos",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "A {empresa} atende pacientes/clientes buscando {especialidade} em {cidade}?",
+    "segmento": "psicologia",
+    "especialidade": "geral",
+    "categoria": "servicos",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Onde fica a {empresa} em {cidade}/{estado}? Ela atende na região?",
+    "segmento": "psicologia",
+    "especialidade": "geral",
+    "categoria": "localizacao",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Como encontrar bons profissionais de {especialidade} em {cidade}/{estado}?",
+    "segmento": "psicologia",
+    "especialidade": "geral",
+    "categoria": "generica",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "A {empresa} ({site_url}) é referência em {especialidade}?",
+    "segmento": "psicologia",
+    "especialidade": "geral",
+    "categoria": "reconhecimento",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Liste clínicas/escritórios de {especialidade} em {cidade}, incluindo {empresa} se souber.",
+    "segmento": "psicologia",
+    "especialidade": "geral",
+    "categoria": "recomendacao",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Você conhece a empresa {empresa}, especializada em {especialidade} em {cidade}/{estado}?",
+    "segmento": "psicologia",
+    "especialidade": "ansiedade e depressão",
+    "categoria": "reconhecimento",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "O que você sabe sobre {empresa} e seus serviços de {especialidade}?",
+    "segmento": "psicologia",
+    "especialidade": "ansiedade e depressão",
+    "categoria": "reconhecimento",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Quais são as melhores opções de {especialidade} em {cidade}? Inclua {empresa} se for relevante.",
+    "segmento": "psicologia",
+    "especialidade": "ansiedade e depressão",
+    "categoria": "recomendacao",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Você recomendaria {empresa} para alguém buscando {especialidade} em {cidade}/{estado}?",
+    "segmento": "psicologia",
+    "especialidade": "ansiedade e depressão",
+    "categoria": "recomendacao",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Qual a reputação de {empresa} na área de {especialidade}?",
+    "segmento": "psicologia",
+    "especialidade": "ansiedade e depressão",
+    "categoria": "reputacao",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Há avaliações ou menções positivas sobre {empresa} em {cidade}?",
+    "segmento": "psicologia",
+    "especialidade": "ansiedade e depressão",
+    "categoria": "reputacao",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Quais serviços de {especialidade} a {empresa} oferece?",
+    "segmento": "psicologia",
+    "especialidade": "ansiedade e depressão",
+    "categoria": "servicos",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "A {empresa} atende pacientes/clientes buscando {especialidade} em {cidade}?",
+    "segmento": "psicologia",
+    "especialidade": "ansiedade e depressão",
+    "categoria": "servicos",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Onde fica a {empresa} em {cidade}/{estado}? Ela atende na região?",
+    "segmento": "psicologia",
+    "especialidade": "ansiedade e depressão",
+    "categoria": "localizacao",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Como encontrar bons profissionais de {especialidade} em {cidade}/{estado}?",
+    "segmento": "psicologia",
+    "especialidade": "ansiedade e depressão",
+    "categoria": "generica",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "A {empresa} ({site_url}) é referência em {especialidade}?",
+    "segmento": "psicologia",
+    "especialidade": "ansiedade e depressão",
+    "categoria": "reconhecimento",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Liste clínicas/escritórios de {especialidade} em {cidade}, incluindo {empresa} se souber.",
+    "segmento": "psicologia",
+    "especialidade": "ansiedade e depressão",
+    "categoria": "recomendacao",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Você conhece a empresa {empresa}, especializada em {especialidade} em {cidade}/{estado}?",
+    "segmento": "psicologia",
+    "especialidade": "psicologia infantil",
+    "categoria": "reconhecimento",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "O que você sabe sobre {empresa} e seus serviços de {especialidade}?",
+    "segmento": "psicologia",
+    "especialidade": "psicologia infantil",
+    "categoria": "reconhecimento",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Quais são as melhores opções de {especialidade} em {cidade}? Inclua {empresa} se for relevante.",
+    "segmento": "psicologia",
+    "especialidade": "psicologia infantil",
+    "categoria": "recomendacao",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Você recomendaria {empresa} para alguém buscando {especialidade} em {cidade}/{estado}?",
+    "segmento": "psicologia",
+    "especialidade": "psicologia infantil",
+    "categoria": "recomendacao",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Qual a reputação de {empresa} na área de {especialidade}?",
+    "segmento": "psicologia",
+    "especialidade": "psicologia infantil",
+    "categoria": "reputacao",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Há avaliações ou menções positivas sobre {empresa} em {cidade}?",
+    "segmento": "psicologia",
+    "especialidade": "psicologia infantil",
+    "categoria": "reputacao",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Quais serviços de {especialidade} a {empresa} oferece?",
+    "segmento": "psicologia",
+    "especialidade": "psicologia infantil",
+    "categoria": "servicos",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "A {empresa} atende pacientes/clientes buscando {especialidade} em {cidade}?",
+    "segmento": "psicologia",
+    "especialidade": "psicologia infantil",
+    "categoria": "servicos",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Onde fica a {empresa} em {cidade}/{estado}? Ela atende na região?",
+    "segmento": "psicologia",
+    "especialidade": "psicologia infantil",
+    "categoria": "localizacao",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Como encontrar bons profissionais de {especialidade} em {cidade}/{estado}?",
+    "segmento": "psicologia",
+    "especialidade": "psicologia infantil",
+    "categoria": "generica",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "A {empresa} ({site_url}) é referência em {especialidade}?",
+    "segmento": "psicologia",
+    "especialidade": "psicologia infantil",
+    "categoria": "reconhecimento",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Liste clínicas/escritórios de {especialidade} em {cidade}, incluindo {empresa} se souber.",
+    "segmento": "psicologia",
+    "especialidade": "psicologia infantil",
+    "categoria": "recomendacao",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Você conhece a empresa {empresa}, especializada em {especialidade} em {cidade}/{estado}?",
+    "segmento": "geral",
+    "especialidade": "geral",
+    "categoria": "reconhecimento",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "O que você sabe sobre {empresa} e seus serviços de {especialidade}?",
+    "segmento": "geral",
+    "especialidade": "geral",
+    "categoria": "reconhecimento",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Quais são as melhores opções de {especialidade} em {cidade}? Inclua {empresa} se for relevante.",
+    "segmento": "geral",
+    "especialidade": "geral",
+    "categoria": "recomendacao",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Você recomendaria {empresa} para alguém buscando {especialidade} em {cidade}/{estado}?",
+    "segmento": "geral",
+    "especialidade": "geral",
+    "categoria": "recomendacao",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Qual a reputação de {empresa} na área de {especialidade}?",
+    "segmento": "geral",
+    "especialidade": "geral",
+    "categoria": "reputacao",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Há avaliações ou menções positivas sobre {empresa} em {cidade}?",
+    "segmento": "geral",
+    "especialidade": "geral",
+    "categoria": "reputacao",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Quais serviços de {especialidade} a {empresa} oferece?",
+    "segmento": "geral",
+    "especialidade": "geral",
+    "categoria": "servicos",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "A {empresa} atende pacientes/clientes buscando {especialidade} em {cidade}?",
+    "segmento": "geral",
+    "especialidade": "geral",
+    "categoria": "servicos",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Onde fica a {empresa} em {cidade}/{estado}? Ela atende na região?",
+    "segmento": "geral",
+    "especialidade": "geral",
+    "categoria": "localizacao",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Como encontrar bons profissionais de {especialidade} em {cidade}/{estado}?",
+    "segmento": "geral",
+    "especialidade": "geral",
+    "categoria": "generica",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "A {empresa} ({site_url}) é referência em {especialidade}?",
+    "segmento": "geral",
+    "especialidade": "geral",
+    "categoria": "reconhecimento",
+    "ativa": true,
+    "criada_por": "vertice"
+  },
+  {
+    "texto": "Liste clínicas/escritórios de {especialidade} em {cidade}, incluindo {empresa} se souber.",
+    "segmento": "geral",
+    "especialidade": "geral",
+    "categoria": "recomendacao",
+    "ativa": true,
+    "criada_por": "vertice"
+  }
+]

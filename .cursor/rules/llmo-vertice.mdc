@@ -1,0 +1,79 @@
+---
+description: Sistema LLMO — Vértice Carioca (convenções e domínio)
+alwaysApply: true
+---
+
+# Sistema LLMO — Vértice Carioca
+# Agência de marketing digital do Rio de Janeiro
+
+## Sobre o projeto
+Sistema de pesquisa LLMO (Large Language Model Optimization) para medir
+a visibilidade de EMPRESAS nas IAs (ChatGPT, Gemini, Perplexity, Claude).
+O cliente da Vértice é sempre uma EMPRESA — clínica médica, escritório
+de advocacia, clínica de psicologia. Nunca profissional autônomo isolado.
+
+## Stack
+- Python 3.11 + FastAPI
+- Deploy: Railway
+- IAs: Claude (Anthropic), ChatGPT (OpenAI), Gemini (Google), Perplexity
+- Armazenamento:
+  - JSON em disco: banco de perguntas (`data/perguntas.json`)
+  - JSON em disco: jobs/histórico (`data/jobs/`) — sobrevive a restart
+  - Dict em memória: cache de progresso do job ativo (espelhado no disco)
+- Painel: HTML/CSS/JS puro em /static/painel.html
+- Auditor técnico: `services/site_auditor.py` (crawl do site_url para SEO/LLMO)
+
+## Segmentos atendidos
+- medicina (CFM Resolução 2.336/23)
+- advocacia (OAB Provimento 205/2021)
+- psicologia (CFP)
+- outro
+
+## Sistema de pontuação
+Dimensões e pesos:
+- seo_tecnico: 25%
+- llmo_schema: 30%
+- autoridade_citacao: 25%
+- conteudo: 20%
+
+Escala de citação:
+- detalhado → 10 pts
+- superficial → 6 pts
+- vago → 3 pts
+- nao_citado → 0 pts
+
+Pesos por IA (para score de autoridade) — refletir share de uso no BR:
+- chatgpt: 40%   ← maior peso (mais usado pelos clientes finais)
+- gemini: 25%
+- perplexity: 20%  ← peso menor no score, mas sinal diagnóstico forte
+  (busca em tempo real; ausência = site fraco na web indexada HOJE)
+- claude: 15%
+
+Status por faixa de score:
+- 0.0–2.9 → critico
+- 3.0–4.9 → baixo
+- 5.0–6.9 → medio
+- 7.0–8.4 → bom
+- 8.5–10  → excelente
+
+## Modelos de IA (atualizar se a API mudar)
+- Claude:     claude-sonnet-5
+- ChatGPT:    gpt-4o-mini
+- Gemini:     gemini-2.5-flash
+- Perplexity: sonar
+
+## Paleta visual
+- Navy:    #0d1b2a
+- Gold:    #c9a84c
+- Cream:   #f5f0e8
+- Danger:  #e05c4b
+- Amber:   #e0a030
+- Success: #4caf7d
+
+## Convenções de código
+- Tipagem completa com Pydantic v2
+- async/await em todos os serviços de IA e no auditor de site
+- Logging estruturado em cada chamada de API
+- Tratamento de erro com retry em todos os serviços
+- Comentários em português (projeto brasileiro)
+- GET /health NÃO chama APIs de IA (só valida env + arquivos locais)

@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>LLMO — Vértice Carioca</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet"/>
+<style>
+:root{--navy:#0d1b2a;--gold:#c9a84c;--cream:#f5f0e8;--danger:#e05c4b;--amber:#e0a030;--success:#4caf7d;--sidebar:200px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--navy);min-height:100vh}
+h1,h2,h3{font-family:'Playfair Display',serif}
+.layout{display:flex;min-height:100vh}
+.sidebar{width:var(--sidebar);background:var(--navy);color:var(--cream);padding:24px 0;position:fixed;height:100%;z-index:20}
+.sidebar .brand{padding:0 20px 24px;font-family:'Playfair Display',serif;font-size:22px}
+.sidebar .brand span{color:var(--gold)}
+.sidebar nav button{display:block;width:100%;text-align:left;background:none;border:none;color:#c5c0b6;padding:12px 20px;cursor:pointer;font:inherit}
+.sidebar nav button.active,.sidebar nav button:hover{background:rgba(201,168,76,.15);color:var(--gold)}
+.main{margin-left:var(--sidebar);flex:1;padding:28px 32px;max-width:1100px}
+.hamburger{display:none;position:fixed;top:12px;left:12px;z-index:30;background:var(--navy);color:var(--cream);border:none;padding:8px 12px;font-size:18px}
+@media(max-width:800px){
+  .sidebar{transform:translateX(-100%);transition:.2s}
+  .sidebar.open{transform:translateX(0)}
+  .main{margin-left:0;padding:60px 16px 24px}
+  .hamburger{display:block}
+}
+.card{background:#fff;border:1px solid #e5dfd3;padding:20px;margin-bottom:16px}
+.btn{background:var(--navy);color:var(--cream);border:none;padding:10px 18px;cursor:pointer;font:inherit;border-radius:2px}
+.btn:hover{background:#1a2f45}
+.btn.gold{background:var(--gold);color:var(--navy)}
+.btn.ghost{background:transparent;border:1px solid var(--navy);color:var(--navy)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+label{display:block;font-size:13px;margin:10px 0 4px;font-weight:500}
+input,select,textarea{width:100%;padding:10px;border:1px solid #d4cfc4;background:#fff;font:inherit}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:600px){.row{grid-template-columns:1fr}}
+.steps{display:flex;gap:8px;margin-bottom:20px}
+.steps span{flex:1;text-align:center;padding:8px;background:#e5dfd3;font-size:13px}
+.steps span.on{background:var(--gold);color:var(--navy);font-weight:700}
+.hidden{display:none!important}
+.badge{display:inline-block;padding:2px 8px;font-size:11px;border-radius:2px;background:var(--navy);color:var(--cream)}
+.badge.critico{background:var(--danger)}.badge.baixo{background:var(--amber)}.badge.medio{background:#e0c47a;color:var(--navy)}
+.badge.bom,.badge.excelente{background:var(--success)}
+.bar{height:8px;background:#e5dfd3;border-radius:4px;margin-top:6px}
+.bar>i{display:block;height:100%;border-radius:4px;background:var(--success)}
+.perguntas-lista{max-height:360px;overflow:auto;border:1px solid #e5dfd3;padding:8px}
+.perguntas-lista label{display:flex;gap:8px;align-items:flex-start;font-weight:400;margin:0;padding:8px;border-bottom:1px solid #f0ebe3}
+.perguntas-lista input{width:auto;margin-top:4px}
+.filters{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.filters button{padding:6px 10px;border:1px solid #d4cfc4;background:#fff;cursor:pointer;font-size:12px}
+.filters button.on{background:var(--navy);color:var(--cream)}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+@media(max-width:800px){.grid4{grid-template-columns:1fr 1fr}}
+.score-big{font-size:48px;font-weight:700;font-family:'Playfair Display',serif}
+.modal-bg{position:fixed;inset:0;background:rgba(13,27,42,.55);display:flex;align-items:center;justify-content:center;z-index:50}
+.modal{background:#fff;padding:24px;width:min(480px,92vw);border:1px solid var(--gold)}
+.modal.wide{width:min(640px,94vw)}
+.modal textarea.json-area{font-family:ui-monospace,Consolas,monospace;font-size:12px;min-height:220px}
+.login-box{max-width:380px;margin:80px auto;background:#fff;padding:32px;border:1px solid #e5dfd3}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{padding:8px;border-bottom:1px solid #e5dfd3;text-align:left;vertical-align:top}
+.ok-row{background:#eaf7ef}.nok-row{background:#fcecea}
+.plano{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.urg{background:#fcecea;padding:12px}.d30{background:#fff6e5;padding:12px}.cont{background:#eaf7ef;padding:12px}
+.final{border:2px solid var(--gold);padding:24px;text-align:center;background:#fff;margin-top:16px}
+.muted{opacity:.7;font-size:13px}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.hist-cards{display:grid;gap:12px}
+.check{color:var(--success)}.cross{color:var(--danger)}
+</style>
+</head>
+<body>
+<button class="hamburger" id="btnMenu">☰</button>
+<div id="loginScreen" class="login-box">
+  <h1>Vértice <span style="color:var(--gold)">Carioca</span></h1>
+  <p class="muted" style="margin:8px 0 20px">Painel LLMO — autenticação</p>
+  <label>Usuário</label>
+  <input id="loginUser" value="catia"/>
+  <label>Senha</label>
+  <input id="loginPass" type="password"/>
+  <div class="actions"><button class="btn gold" id="btnLogin">Entrar</button></div>
+  <p id="loginErr" class="muted" style="color:var(--danger);margin-top:12px"></p>
+</div>
+
+<div id="app" class="layout hidden">
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">Vértice <span>Carioca</span></div>
+    <nav>
+      <button data-tela="diagnostico" class="active">Novo diagnóstico</button>
+      <button data-tela="resultado">Resultado</button>
+      <button data-tela="banco">Banco de perguntas</button>
+      <button data-tela="historico">Histórico</button>
+      <button data-tela="saude">Saúde do sistema</button>
+    </nav>
+  </aside>
+  <main class="main">
+    <!-- DIAGNÓSTICO -->
+    <section id="tela-diagnostico">
+      <h1>Novo diagnóstico</h1>
+      <div class="steps"><span class="on" id="s1">1/3 Dados</span><span id="s2">2/3 Perguntas</span><span id="s3">3/3 Progresso</span></div>
+      <div id="passo1" class="card">
+        <div class="row">
+          <div><label>Nome da empresa *</label><input id="empresa"/></div>
+          <div><label>Razão social</label><input id="razao"/></div>
+        </div>
+        <label>URL do site</label><input id="site" placeholder="https://..."/>
+        <div class="row">
+          <div><label>Segmento *</label>
+            <select id="segmento"><option>medicina</option><option>advocacia</option><option>psicologia</option><option>odontologia</option><option>outro</option></select>
+          </div>
+          <div><label>Especialidade *</label><input id="especialidade" placeholder="cirurgia plástica"/></div>
+        </div>
+        <div class="row">
+          <div><label>Cidade *</label><input id="cidade" value="São Paulo"/></div>
+          <div><label>Bairro</label><input id="bairro" placeholder="ex.: Ipiranga"/></div>
+        </div>
+        <div class="row">
+          <div><label>Estado</label>
+            <select id="estado"><option>SP</option><option>RJ</option><option>MG</option><option>ES</option><option>Outro</option></select>
+          </div>
+          <div></div>
+        </div>
+        <label>IAs</label>
+        <div class="filters" id="iasChecks">
+          <label style="display:inline-flex;align-items:center;gap:4px;margin-right:12px"><input type="checkbox" value="claude" checked/> Claude</label>
+          <label style="display:inline-flex;align-items:center;gap:4px;margin-right:12px"><input type="checkbox" value="chatgpt" checked/> ChatGPT</label>
+          <label style="display:inline-flex;align-items:center;gap:4px;margin-right:12px"><input type="checkbox" value="gemini" checked/> Gemini</label>
+          <label style="display:inline-flex;align-items:center;gap:4px"><input type="checkbox" value="perplexity" checked/> Perplexity</label>
+        </div>
+        <div class="actions"><button class="btn gold" id="btnPasso2">Próximo →</button></div>
+      </div>
+      <div id="passo2" class="card hidden">
+        <div class="row">
+          <input id="buscaPergunta" placeholder="Buscar pergunta..."/>
+          <button class="btn ghost" id="btnNovaPergunta">+ Nova pergunta</button>
+          <button class="btn ghost" id="btnImportJson">Importar JSON</button>
+        </div>
+        <div class="filters" id="filtrosCat"></div>
+        <p class="muted" id="contadorSel">0 perguntas selecionadas (mín. 5, máx. 20)</p>
+        <div class="perguntas-lista" id="listaPerguntas"></div>
+        <div id="custoCard" class="card hidden" style="margin-top:12px;background:var(--cream)"></div>
+        <div class="actions">
+          <button class="btn ghost" id="btnVoltar1">← Voltar</button>
+          <button class="btn" id="btnEstimar">Estimar custo →</button>
+          <button class="btn gold hidden" id="btnIniciar">Iniciar Diagnóstico</button>
+        </div>
+      </div>
+      <div id="passo3" class="card hidden">
+        <h2>Progresso</h2>
+        <div class="bar" style="height:16px"><i id="progBar" style="width:0%"></i></div>
+        <p id="progTxt" class="muted" style="margin-top:8px">Iniciando...</p>
+        <ul id="progLog" style="margin-top:12px;list-style:none"></ul>
+        <div id="progDone" class="hidden">
+          <p class="score-big" id="progScore"></p>
+          <span class="badge" id="progStatus"></span>
+          <div class="actions">
+            <button class="btn gold" id="btnVerResultado">Ver resultado completo</button>
+            <button class="btn ghost" id="btnBaixar">Baixar relatório HTML</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RESULTADO -->
+    <section id="tela-resultado" class="hidden">
+      <h1>Resultado</h1>
+      <div id="resultadoBox"><p class="muted">Nenhum diagnóstico carregado.</p></div>
+    </section>
+
+    <!-- BANCO -->
+    <section id="tela-banco" class="hidden">
+      <h1>Banco de perguntas</h1>
+      <div class="row">
+        <select id="filtroSeg"><option value="">Segmento</option></select>
+        <input id="filtroEsp" placeholder="Especialidade"/>
+      </div>
+      <div class="row" style="margin-top:8px">
+        <select id="filtroCat"><option value="">Categoria</option>
+          <option>reconhecimento</option><option>recomendacao</option><option>reputacao</option>
+          <option>servicos</option><option>localizacao</option><option>generica</option>
+        </select>
+        <input id="filtroBusca" placeholder="Busca texto"/>
+      </div>
+      <div class="actions">
+        <button class="btn" id="btnFiltrarBanco">Filtrar</button>
+        <button class="btn gold" id="btnNovaBanco">Nova pergunta</button>
+      </div>
+      <p class="muted" id="bancoContador"></p>
+      <div class="card" style="overflow:auto"><table id="tabelaBanco"><thead>
+        <tr><th>Texto</th><th>Segmento</th><th>Especialidade</th><th>Categoria</th><th>Rodada</th><th>Ativa</th><th></th></tr>
+      </thead><tbody></tbody></table></div>
+    </section>
+
+    <!-- HISTÓRICO -->
+    <section id="tela-historico" class="hidden">
+      <h1>Histórico</h1>
+      <div class="row">
+        <input id="histBusca" placeholder="Nome da empresa"/>
+        <select id="histSeg"><option value="">Segmento</option><option>medicina</option><option>advocacia</option><option>psicologia</option></select>
+      </div>
+      <div class="actions">
+        <button class="btn" id="btnHistFiltrar">Buscar</button>
+        <label style="display:inline-flex;align-items:center;gap:6px;margin:0"><input type="checkbox" id="histFav"/> Só favoritos</label>
+      </div>
+      <div class="hist-cards" id="histLista"></div>
+      <div class="actions"><button class="btn ghost" id="btnHistPrev">←</button><span id="histPag">1</span><button class="btn ghost" id="btnHistNext">→</button></div>
+    </section>
+
+    <!-- SAÚDE -->
+    <section id="tela-saude" class="hidden">
+      <h1>Saúde do sistema</h1>
+      <div class="grid4" id="saudeApis"></div>
+      <div class="card" id="saudeBanco"></div>
+      <div class="card" id="saudeJobs"></div>
+      <div class="actions"><button class="btn gold" id="btnTestarConn">Testar conexões</button></div>
+      <p class="muted">Custo estimado padrão: 10 perguntas × 4 IAs ≈ R$ 0,80–1,50</p>
+    </section>
+  </main>
+</div>
+
+<div id="modal" class="modal-bg hidden">
+  <div class="modal">
+    <h3 id="modalTitulo">Nova pergunta</h3>
+    <label>Texto (use {empresa}, {especialidade}, {cidade}, {bairro}, {estado})</label>
+    <textarea id="novaTexto" rows="3"></textarea>
+    <label>Preview</label>
+    <p class="muted" id="novaPreview"></p>
+    <div class="row">
+      <div><label>Segmento</label><input id="novaSeg" value="medicina"/></div>
+      <div><label>Categoria</label>
+        <select id="novaCat">
+          <option>reconhecimento</option><option>recomendacao</option><option>reputacao</option>
+          <option>servicos</option><option>localizacao</option><option>generica</option>
+        </select>
+      </div>
+    </div>
+    <div class="row">
+      <div><label>Especialidade</label><input id="novaEsp"/></div>
+      <div><label>Rodada (Bloco 1)</label>
+        <select id="novaRodada">
+          <option value="">—</option>
+          <option value="r1">R1 genérica</option>
+          <option value="r2">R2 intenção</option>
+          <option value="r3">R3 bairro</option>
+          <option value="r4">R4 nome direto</option>
+          <option value="r5">R5 comparação</option>
+        </select>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="btn ghost" id="modalCancel">Cancelar</button>
+      <button class="btn gold" id="modalSave">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<div id="modalJson" class="modal-bg hidden">
+  <div class="modal wide">
+    <h3>Importar perguntas (JSON)</h3>
+    <p class="muted">Cole um array JSON. As perguntas da lista atual serão <strong>substituídas</strong> por estas (criadas no banco e selecionadas).</p>
+    <label>Formato esperado</label>
+    <pre class="muted" style="white-space:pre-wrap;font-size:11px;background:#f7f4ee;padding:8px;margin:0 0 8px">[
+  {
+    "texto": "Qual clínica você recomenda em {cidade}?",
+    "segmento": "odontologia",
+    "categoria": "recomendacao",
+    "especialidade": "odontologia estética",
+    "rodada": "r1"
+  }
+]</pre>
+    <label>JSON</label>
+    <textarea id="jsonImportArea" class="json-area" placeholder='[ { "texto": "...", "segmento": "...", "categoria": "recomendacao", "rodada": "r1" } ]'></textarea>
+    <p class="muted" id="jsonImportErr" style="color:var(--danger)"></p>
+    <div class="actions">
+      <button class="btn ghost" id="jsonImportCancel">Cancelar</button>
+      <button class="btn gold" id="jsonImportApply">Substituir lista</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const state = {
+  auth: localStorage.getItem('llmo_auth') || '',
+  passo: 1,
+  perguntas: [],
+  selecionadas: new Set(),
+  jobId: null,
+  resultado: null,
+  histPagina: 1,
+  catFiltro: null,
+  modalContext: null,
+  editId: null,
+  bancoList: [],
+};
+
+function authHeader() {
+  return state.auth ? { 'Authorization': 'Basic ' + state.auth } : {};
+}
+
+async function api(path, opts={}) {
+  const headers = { 'Content-Type': 'application/json', ...authHeader(), ...(opts.headers||{}) };
+  const res = await fetch('/api' + path, { ...opts, headers });
+  if (res.status === 401) throw new Error('Não autorizado');
+  if (res.status === 204) return null;
+  const text = await res.text();
+  let data = null;
+  try { data = text ? JSON.parse(text) : null; } catch { data = text; }
+  if (!res.ok) throw new Error((data && data.detail) || res.statusText);
+  return data;
+}
+
+// Login
+document.getElementById('btnLogin').onclick = async () => {
+  const u = document.getElementById('loginUser').value;
+  const p = document.getElementById('loginPass').value;
+  state.auth = btoa(u + ':' + p);
+  try {
+    await api('/health'.replace('/api','') ); // won't work
+  } catch {}
+  try {
+    await fetch('/api/perguntas/segmentos', { headers: authHeader() }).then(r => {
+      if (!r.ok) throw new Error('Credenciais inválidas');
+    });
+    localStorage.setItem('llmo_auth', state.auth);
+    document.getElementById('loginScreen').classList.add('hidden');
+    document.getElementById('app').classList.remove('hidden');
+  } catch (e) {
+    document.getElementById('loginErr').textContent = e.message;
+    state.auth = '';
+  }
+};
+if (state.auth) {
+  document.getElementById('loginScreen').classList.add('hidden');
+  document.getElementById('app').classList.remove('hidden');
+}
+
+// Nav
+document.querySelectorAll('.sidebar nav button').forEach(btn => {
+  btn.onclick = () => {
+    document.querySelectorAll('.sidebar nav button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('main > section').forEach(s => s.classList.add('hidden'));
+    document.getElementById('tela-' + btn.dataset.tela).classList.remove('hidden');
+    document.getElementById('sidebar').classList.remove('open');
+    if (btn.dataset.tela === 'banco') carregarBanco();
+    if (btn.dataset.tela === 'historico') carregarHistorico();
+    if (btn.dataset.tela === 'saude') carregarSaude();
+    if (btn.dataset.tela === 'resultado') renderResultado();
+  };
+});
+document.getElementById('btnMenu').onclick = () => document.getElementById('sidebar').classList.toggle('open');
+
+function setPasso(n) {
+  state.passo = n;
+  ['passo1','passo2','passo3'].forEach((id,i) => {
+    document.getElementById(id).classList.toggle('hidden', i+1 !== n);
+  });
+  ['s1','s2','s3'].forEach((id,i) => document.getElementById(id).classList.toggle('on', i+1 === n));
+}
+
+document.getElementById('btnPasso2').onclick = async () => {
+  if (!document.getElementById('empresa').value.trim() || !document.getElementById('especialidade').value.trim()) {
+    alert('Preencha empresa e especialidade'); return;
+  }
+  if (!document.getElementById('cidade').value.trim()) {
+    alert('Preencha a cidade'); return;
+  }
+  setPasso(2);
+  const seg = document.getElementById('segmento').value;
+  const esp = document.getElementById('especialidade').value;
+  state.perguntas = await api(`/perguntas/sugestao?segmento=${encodeURIComponent(seg)}&especialidade=${encodeURIComponent(esp)}&limite=16`);
+  state.selecionadas = new Set(state.perguntas.map(p => p.id));
+  renderPerguntas();
+};
+
+document.getElementById('btnVoltar1').onclick = () => setPasso(1);
+
+const cats = ['reconhecimento','recomendacao','reputacao','servicos','localizacao','generica'];
+document.getElementById('filtrosCat').innerHTML = cats.map(c => `<button data-cat="${c}">${c}</button>`).join('');
+document.getElementById('filtrosCat').onclick = (e) => {
+  if (e.target.tagName !== 'BUTTON') return;
+  const cat = e.target.dataset.cat;
+  state.catFiltro = state.catFiltro === cat ? null : cat;
+  [...document.getElementById('filtrosCat').children].forEach(b => b.classList.toggle('on', b.dataset.cat === state.catFiltro));
+  renderPerguntas();
+};
+
+document.getElementById('buscaPergunta').oninput = () => renderPerguntas();
+
+function previewTexto(t) {
+  const val = (id) => (document.getElementById(id)?.value || '').trim();
+  const empresa = val('empresa') || '{empresa}';
+  const especialidade = val('especialidade') || '{especialidade}';
+  const cidade = val('cidade') || '{cidade}';
+  const bairro = val('bairro') || cidade;
+  const estado = val('estado') || '{estado}';
+  const site = val('site') || empresa;
+  return t.replaceAll('{empresa}', empresa)
+          .replaceAll('{especialidade}', especialidade)
+          .replaceAll('{cidade}', cidade)
+          .replaceAll('{bairro}', bairro)
+          .replaceAll('{estado}', estado)
+          .replaceAll('{site_url}', site);
+}
+
+function renderPerguntas() {
+  const q = document.getElementById('buscaPergunta').value.toLowerCase();
+  let list = state.perguntas;
+  if (state.catFiltro) list = list.filter(p => p.categoria === state.catFiltro);
+  if (q) list = list.filter(p => p.texto.toLowerCase().includes(q));
+
+  const labelsRodada = {
+    r1: 'R1 — Genérica (sem nome)',
+    r2: 'R2 — Intenção real',
+    r3: 'R3 — Por bairro',
+    r4: 'R4 — Nome direto',
+    r5: 'R5 — Comparação / lista',
+  };
+  const comRodada = list.filter(p => p.rodada);
+  const semRodada = list.filter(p => !p.rodada);
+
+  let html = '';
+  if (comRodada.length) {
+    ['r1','r2','r3','r4','r5'].forEach(r => {
+      const grupo = comRodada.filter(p => p.rodada === r);
+      if (!grupo.length) return;
+      html += `<div style="margin:12px 0 6px;font-weight:600;color:var(--navy,#0d1b2a)">${labelsRodada[r]||r.toUpperCase()}</div>`;
+      html += grupo.map(p => `
+        <label><input type="checkbox" data-id="${p.id}" ${state.selecionadas.has(p.id)?'checked':''}/>
+        <span><span class="badge">${p.rodada.toUpperCase()}</span>
+        <span class="badge">${p.categoria}</span> ${previewTexto(p.texto)}</span></label>`).join('');
+    });
+  }
+  if (semRodada.length) {
+    html += `<div style="margin:12px 0 6px;font-weight:600">Outras</div>`;
+    html += semRodada.map(p => `
+      <label><input type="checkbox" data-id="${p.id}" ${state.selecionadas.has(p.id)?'checked':''}/>
+      <span><span class="badge">${p.categoria}</span> ${previewTexto(p.texto)}</span></label>`).join('');
+  }
+  if (!html) html = '<p class="muted">Nenhuma pergunta encontrada.</p>';
+
+  document.getElementById('listaPerguntas').innerHTML = html;
+  document.getElementById('listaPerguntas').onchange = (e) => {
+    const id = e.target.dataset.id;
+    if (e.target.checked) state.selecionadas.add(id); else state.selecionadas.delete(id);
+    atualizarContador();
+  };
+  atualizarContador();
+}
+function atualizarContador() {
+  const n = state.selecionadas.size;
+  document.getElementById('contadorSel').textContent = `${n} perguntas selecionadas (mín. 5, máx. 20)`;
+}
+
+document.getElementById('btnEstimar').onclick = async () => {
+  if (state.selecionadas.size < 5 || state.selecionadas.size > 20) { alert('Selecione entre 5 e 20 perguntas'); return; }
+  const body = buildRequest();
+  const est = await api('/diagnostico/estimar', { method:'POST', body: JSON.stringify(body) });
+  document.getElementById('custoCard').classList.remove('hidden');
+  document.getElementById('custoCard').innerHTML = `<strong>Custo estimado:</strong> R$ ${est.custo_brl} · ~${est.tempo_estimado_seg}s · ${est.total_chamadas_api} chamadas<br/><span class="muted" style="font-size:12px">ChatGPT: gpt-4o + busca web · perguntas orgânicas (sem dica do nome da empresa)</span>`;
+  document.getElementById('btnIniciar').classList.remove('hidden');
+};
+
+function buildRequest() {
+  const ias = [...document.querySelectorAll('#iasChecks input:checked')].map(i => i.value);
+  return {
+    empresa_nome: document.getElementById('empresa').value.trim(),
+    empresa_razao_social: document.getElementById('razao').value.trim() || null,
+    site_url: document.getElementById('site').value.trim() || null,
+    segmento: document.getElementById('segmento').value,
+    especialidade: document.getElementById('especialidade').value.trim(),
+    cidade: document.getElementById('cidade').value.trim(),
+    bairro: document.getElementById('bairro').value.trim() || null,
+    estado: document.getElementById('estado').value,
+    perguntas_ids: [...state.selecionadas],
+    ias_ativas: ias,
+  };
+}
+
+document.getElementById('btnIniciar').onclick = async () => {
+  setPasso(3);
+  document.getElementById('progDone').classList.add('hidden');
+  const start = await api('/diagnostico/iniciar', { method:'POST', body: JSON.stringify(buildRequest()) });
+  state.jobId = start.job_id;
+  pollStatus();
+};
+
+async function pollStatus() {
+  try {
+    const st = await api(`/diagnostico/${state.jobId}/status`);
+    document.getElementById('progBar').style.width = (st.progresso||0) + '%';
+    document.getElementById('progTxt').textContent = st.etapa_atual || st.status;
+    const li = document.createElement('li');
+    li.textContent = `• ${st.etapa_atual || st.status} (${st.progresso}%)`;
+    document.getElementById('progLog').appendChild(li);
+    if (st.status === 'concluido') {
+      state.resultado = await api(`/diagnostico/${state.jobId}/resultado`);
+      document.getElementById('progDone').classList.remove('hidden');
+      document.getElementById('progScore').textContent = state.resultado.score_geral.toFixed(1) + '/10';
+      const b = document.getElementById('progStatus');
+      b.textContent = state.resultado.status.toUpperCase();
+      b.className = 'badge ' + state.resultado.status;
+      return;
+    }
+    if (st.status === 'erro') { alert(st.erro || 'Erro'); return; }
+    setTimeout(pollStatus, 2000);
+  } catch (e) { alert(e.message); }
+}
+
+document.getElementById('btnVerResultado').onclick = () => {
+  document.querySelector('[data-tela=resultado]').click();
+};
+async function baixarRelatorio(jobId) {
+  const res = await fetch('/api/diagnostico/' + jobId + '/relatorio/download', { headers: authHeader() });
+  if (!res.ok) { alert('Falha no download'); return; }
+  const blob = await res.blob();
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'LLMO_relatorio.html';
+  a.click();
+}
+document.getElementById('btnBaixar').onclick = () => baixarRelatorio(state.jobId);
+
+function statusCriterioLabel(status) {
+  if (status === 'ok') return 'OK';
+  if (status === 'parcial') return 'Parcial';
+  if (status === 'ausente') return 'Ausente';
+  return 'Preencher';
+}
+
+function calcMediaLocal(notas) {
+  if (!notas.length) return null;
+  return notas.reduce((a,b)=>a+b,0) / notas.length;
+}
+
+function renderPlanilhaSection(r) {
+  const b1 = r.bloco1_visibilidade;
+  const plan = r.diagnostico_planilha;
+  if (!b1 && !plan) return '';
+
+  const b1Media = b1 && b1.media != null ? b1.media.toFixed(1) : '—';
+  let b1Rows = '';
+  if (b1) {
+    b1Rows = (b1.por_ia||[]).map(n => {
+      if (!n.disponivel) {
+        return `<tr class="nok-row"><td>${n.ia_nome}</td><td>—</td><td>Indisponível</td></tr>`;
+      }
+      const rod = (n.rodadas_com_aparicao||[]).map(x=>x.toUpperCase()).join(', ') || 'nenhuma';
+      return `<tr class="${(n.nota||0)>0?'ok-row':'nok-row'}"><td>${n.ia_nome}</td><td>${n.nota!=null?n.nota:'—'}</td><td>${rod}</td></tr>`;
+    }).join('');
+  }
+
+  const blocos = (plan && plan.blocos_manuais) || [];
+  let blocosHtml = blocos.map(bloco => {
+    const rows = (bloco.criterios||[]).map(c => {
+      const val = c.nota != null ? c.nota : '';
+      return `<tr>
+        <td>
+          <strong>${c.label}</strong>
+          <div class="muted" style="font-size:12px">${c.como_verificar||''}</div>
+          <details style="margin-top:4px"><summary class="muted" style="font-size:12px;cursor:pointer">Gabarito</summary>
+            <pre style="white-space:pre-wrap;font-size:11px;margin:4px 0 0;font-family:inherit">${c.gabarito||''}</pre>
+          </details>
+        </td>
+        <td style="width:90px">
+          <input type="number" min="0" max="10" step="1" data-criterio="${c.criterio_id}"
+            value="${val}" placeholder="—" style="width:70px"/>
+        </td>
+        <td style="width:90px" data-status-for="${c.criterio_id}">${statusCriterioLabel(c.status)}</td>
+      </tr>`;
+    }).join('');
+    const mediaTxt = bloco.media != null ? bloco.media.toFixed(1) : '—';
+    return `<div class="card" style="margin:12px 0" data-bloco="${bloco.id}">
+      <h3 style="margin:0 0 8px">Bloco ${bloco.numero} — ${bloco.titulo}</h3>
+      <table>
+        <tr><th>Critério</th><th>Nota</th><th>Status</th></tr>
+        ${rows}
+      </table>
+      <p style="margin-top:8px"><strong>SCORE MÉDIO — Bloco ${bloco.numero}:</strong>
+        <span data-media-bloco="${bloco.id}">${mediaTxt}</span></p>
+    </div>`;
+  }).join('');
+
+  const st = plan && plan.score_total;
+  const totalMedia = st && st.media != null ? st.media.toFixed(1) : '—';
+  const totalLabel = (st && st.interpretacao_label) || 'Preencha os blocos';
+
+  return `
+    <div class="card" style="border:1px solid var(--gold,#c9a84c);margin:16px 0" id="planilhaBox">
+      <h2 style="margin:0 0 8px">Diagnóstico LLMO (planilha)</h2>
+      <p class="muted">Bloco 1 automático · Blocos 2–6 manuais · SCORE TOTAL paralelo ao score geral</p>
+
+      <div style="margin:12px 0;padding:12px;background:#f8f6f1">
+        <h3 style="margin:0 0 8px">Bloco 1 — Visibilidade nas IAs (somente leitura)</h3>
+        <div class="score-big" style="font-size:28px">${b1Media}/10</div>
+        <p><strong>${(b1&&b1.interpretacao_label)||''}</strong></p>
+        <table><tr><th>IA</th><th>Nota</th><th>Rodadas</th></tr>${b1Rows}</table>
+      </div>
+
+      ${blocosHtml}
+
+      <div class="actions" style="margin:12px 0">
+        <button class="btn gold" id="btnSalvarBlocos">Salvar e recalcular</button>
+        <span class="muted" id="blocosMsg"></span>
+      </div>
+
+      <div style="text-align:center;padding:16px;border:2px solid var(--gold,#c9a84c);margin-top:8px">
+        <h3 style="margin:0 0 8px">SCORE TOTAL LLMO</h3>
+        <div class="score-big" style="font-size:40px" id="scoreTotalMedia">${totalMedia}/10</div>
+        <p id="scoreTotalLabel"><strong>${totalLabel}</strong></p>
+        <p class="muted" style="font-size:12px">0–3 Invisível · 4–5 Existência básica · 6–7 Buscas específicas · 8–9 Recomendado · 10 Referência</p>
+      </div>
+    </div>`;
+}
+
+function bindPlanilhaHandlers() {
+  const box = document.getElementById('planilhaBox');
+  if (!box) return;
+
+  const recalcLocal = () => {
+    const plan = state.resultado.diagnostico_planilha;
+    if (!plan) return;
+    (plan.blocos_manuais||[]).forEach(bloco => {
+      const vals = [];
+      (bloco.criterios||[]).forEach(c => {
+        const inp = box.querySelector(`input[data-criterio="${c.criterio_id}"]`);
+        if (!inp) return;
+        const raw = inp.value.trim();
+        const nota = raw === '' ? null : Number(raw);
+        const stEl = box.querySelector(`[data-status-for="${c.criterio_id}"]`);
+        if (nota == null || Number.isNaN(nota)) {
+          if (stEl) stEl.textContent = 'Preencher';
+        } else {
+          vals.push(nota);
+          if (stEl) stEl.textContent = statusCriterioLabel(nota >= 7 ? 'ok' : nota >= 4 ? 'parcial' : 'ausente');
+        }
+      });
+      const m = calcMediaLocal(vals);
+      const mEl = box.querySelector(`[data-media-bloco="${bloco.id}"]`);
+      if (mEl) mEl.textContent = m != null ? m.toFixed(1) : '—';
+    });
+  };
+
+  box.querySelectorAll('input[data-criterio]').forEach(inp => {
+    inp.addEventListener('input', recalcLocal);
+  });
+
+  const btn = document.getElementById('btnSalvarBlocos');
+  if (btn) {
+    btn.onclick = async () => {
+      const notas = {};
+      box.querySelectorAll('input[data-criterio]').forEach(inp => {
+        const raw = inp.value.trim();
+        notas[inp.dataset.criterio] = raw === '' ? null : Number(raw);
+      });
+      const msg = document.getElementById('blocosMsg');
+      try {
+        msg.textContent = 'Salvando…';
+        const updated = await api('/diagnostico/' + state.jobId + '/blocos-manuais', {
+          method: 'PUT',
+          body: JSON.stringify({ notas }),
+        });
+        state.resultado = updated;
+        msg.textContent = 'Salvo.';
+        renderResultado();
+      } catch (e) {
+        msg.textContent = e.message || 'Erro ao salvar';
+      }
+    };
+  }
+}
+
+function renderResultado() {
+  const r = state.resultado;
+  const box = document.getElementById('resultadoBox');
+  if (!r) { box.innerHTML = '<p class="muted">Nenhum diagnóstico carregado.</p>'; return; }
+  const scores = Object.entries(r.scores).map(([k,s]) => `
+    <div class="card"><div>${k}</div><div class="score-big" style="font-size:28px">${s.pontuacao_bruta.toFixed(1)}</div>
+    <div class="bar"><i style="width:${s.pontuacao_bruta*10}%"></i></div></div>`).join('');
+  const porIa = {};
+  (r.resultados_ias||[]).forEach(x => { (porIa[x.ia_nome]=porIa[x.ia_nome]||[]).push(x); });
+  const labelNivel = (n) => ({
+    detalhado: 'citado detalhado',
+    superficial: 'citado',
+    vago: 'vago',
+    nao_citado: 'nao_citado',
+  }[n] || n);
+  const acordeao = Object.entries(porIa).map(([ia, items]) => `
+    <details class="card"><summary><strong>${ia}</strong></summary>
+    <table><tr><th>Pergunta</th><th>Nível</th><th>Pts</th></tr>
+    ${items.map(i=>`<tr class="${i.citou_empresa?'ok-row':'nok-row'}"><td>${i.pergunta_texto.slice(0,80)}</td><td>${labelNivel(i.nivel_citacao)}</td><td>${i.pontuacao}</td></tr>`).join('')}
+    </table></details>`).join('');
+  const conc = (r.concorrentes_mais_citados||[]).map(c=>`<tr><td>${c.nome}</td><td>${c.vezes_citado}</td></tr>`).join('') || '<tr><td colspan=2>Nenhum</td></tr>';
+  const plano = {urgente:[], '30_dias':[], continuo:[]};
+  (r.plano_acao||[]).forEach(a => (plano[a.prioridade]=plano[a.prioridade]||[]).push(a.acao));
+
+  const planilhaHtml = renderPlanilhaSection(r);
+
+  box.innerHTML = `
+    <div class="card" style="text-align:center">
+      <div class="score-big">${r.score_geral.toFixed(1)}/10</div>
+      <span class="badge ${r.status}">${r.status.toUpperCase()}</span>
+      <p style="margin-top:12px;font-style:italic">${r.resumo_executivo||''}</p>
+    </div>
+    <div class="grid4">${scores}</div>
+    ${planilhaHtml}
+    <h2 style="margin:16px 0 8px">Por IA</h2>${acordeao}
+    <h2 style="margin:16px 0 8px">Concorrentes</h2>
+    <div class="card"><table><tr><th>Nome</th><th>Vezes</th></tr>${conc}</table></div>
+    <h2 style="margin:16px 0 8px">Plano de ação</h2>
+    <div class="plano">
+      <div class="urg"><strong>URGENTE</strong><ul>${(plano.urgente||[]).map(x=>'<li>'+x+'</li>').join('')}</ul></div>
+      <div class="d30"><strong>30 DIAS</strong><ul>${(plano['30_dias']||[]).map(x=>'<li>'+x+'</li>').join('')}</ul></div>
+      <div class="cont"><strong>CONTÍNUO</strong><ul>${(plano.continuo||[]).map(x=>'<li>'+x+'</li>').join('')}</ul></div>
+    </div>
+    <div class="final">
+      <h2>Diagnóstico Final</h2>
+      <div class="score-big">${r.score_geral.toFixed(1)}/10</div>
+      <span class="badge ${r.status}">${r.status.toUpperCase()}</span>
+    </div>
+    <div class="actions"><button class="btn gold" id="btnDlRes">Baixar relatório HTML</button></div>`;
+  document.getElementById('btnDlRes').onclick = () => baixarRelatorio(state.jobId);
+  bindPlanilhaHandlers();
+}
+
+// Modal nova / editar pergunta
+function fillPerguntaForm(p) {
+  document.getElementById('novaTexto').value = p?.texto || '';
+  document.getElementById('novaSeg').value = p?.segmento || 'medicina';
+  document.getElementById('novaCat').value = p?.categoria || 'recomendacao';
+  document.getElementById('novaEsp').value = p?.especialidade || '';
+  document.getElementById('novaRodada').value = p?.rodada || '';
+  document.getElementById('novaTexto').dispatchEvent(new Event('input'));
+}
+
+function openModal(ctx, pergunta = null) {
+  state.modalContext = ctx;
+  state.editId = pergunta?.id || null;
+  document.getElementById('modalTitulo').textContent = state.editId ? 'Editar pergunta' : 'Nova pergunta';
+  fillPerguntaForm(pergunta);
+  document.getElementById('modal').classList.remove('hidden');
+}
+document.getElementById('btnNovaPergunta').onclick = () => openModal('wizard');
+document.getElementById('btnNovaBanco').onclick = () => openModal('banco');
+document.getElementById('modalCancel').onclick = () => {
+  document.getElementById('modal').classList.add('hidden');
+  state.editId = null;
+};
+document.getElementById('novaTexto').oninput = () => {
+  let t = document.getElementById('novaTexto').value;
+  t = t.replaceAll('{empresa}','Empresa Exemplo').replaceAll('{especialidade}','especialidade')
+       .replaceAll('{cidade}','São Paulo').replaceAll('{bairro}','Ipiranga')
+       .replaceAll('{estado}','SP').replaceAll('{site_url}','https://exemplo.com');
+  document.getElementById('novaPreview').textContent = t;
+};
+document.getElementById('modalSave').onclick = async () => {
+  const rodada = document.getElementById('novaRodada').value || null;
+  const body = {
+    texto: document.getElementById('novaTexto').value.trim(),
+    segmento: document.getElementById('novaSeg').value.trim(),
+    categoria: document.getElementById('novaCat').value,
+    especialidade: document.getElementById('novaEsp').value.trim() || null,
+    rodada,
+  };
+  if (!body.texto) { alert('Informe o texto da pergunta'); return; }
+  let p;
+  if (state.editId) {
+    p = await api('/perguntas/' + state.editId, { method:'PUT', body: JSON.stringify(body) });
+  } else {
+    p = await api('/perguntas', { method:'POST', body: JSON.stringify(body) });
+  }
+  document.getElementById('modal').classList.add('hidden');
+  state.editId = null;
+  if (state.modalContext === 'wizard') {
+    const idx = state.perguntas.findIndex(x => x.id === p.id);
+    if (idx >= 0) state.perguntas[idx] = p;
+    else state.perguntas.unshift(p);
+    state.selecionadas.add(p.id);
+    renderPerguntas();
+  } else carregarBanco();
+};
+
+// Importar JSON no passo 2 — substitui a lista filtrada
+document.getElementById('btnImportJson').onclick = () => {
+  document.getElementById('jsonImportErr').textContent = '';
+  document.getElementById('jsonImportArea').value = '';
+  document.getElementById('modalJson').classList.remove('hidden');
+};
+document.getElementById('jsonImportCancel').onclick = () =>
+  document.getElementById('modalJson').classList.add('hidden');
+document.getElementById('jsonImportApply').onclick = async () => {
+  const errEl = document.getElementById('jsonImportErr');
+  errEl.textContent = '';
+  let raw;
+  try {
+    raw = JSON.parse(document.getElementById('jsonImportArea').value);
+  } catch (e) {
+    errEl.textContent = 'JSON inválido: ' + e.message;
+    return;
+  }
+  if (!Array.isArray(raw) || !raw.length) {
+    errEl.textContent = 'Envie um array JSON com pelo menos 1 pergunta.';
+    return;
+  }
+  if (raw.length > 20) {
+    errEl.textContent = 'Máximo de 20 perguntas por importação (limite do diagnóstico).';
+    return;
+  }
+  try {
+    const criadas = [];
+    for (const item of raw) {
+      if (!item || typeof item.texto !== 'string' || !item.texto.trim()) {
+        throw new Error('Cada item precisa de "texto"');
+      }
+      const body = {
+        texto: item.texto.trim(),
+        segmento: (item.segmento || document.getElementById('segmento').value || 'outro').trim(),
+        categoria: item.categoria || 'recomendacao',
+        especialidade: item.especialidade || document.getElementById('especialidade').value.trim() || null,
+        rodada: item.rodada || null,
+      };
+      const p = await api('/perguntas', { method:'POST', body: JSON.stringify(body) });
+      criadas.push(p);
+    }
+    state.perguntas = criadas;
+    state.selecionadas = new Set(criadas.map(p => p.id));
+    state.catFiltro = null;
+    [...document.getElementById('filtrosCat').children].forEach(b => b.classList.remove('on'));
+    renderPerguntas();
+    document.getElementById('modalJson').classList.add('hidden');
+  } catch (e) {
+    errEl.textContent = e.message || String(e);
+  }
+};
+
+async function carregarBanco() {
+  const seg = document.getElementById('filtroSeg').value;
+  const esp = document.getElementById('filtroEsp').value;
+  const cat = document.getElementById('filtroCat').value;
+  const busca = document.getElementById('filtroBusca').value;
+  const qs = new URLSearchParams({ apenas_ativas: 'false' });
+  if (seg) qs.set('segmento', seg);
+  if (esp) qs.set('especialidade', esp);
+  if (cat) qs.set('categoria', cat);
+  if (busca) qs.set('busca_texto', busca);
+  const list = await api('/perguntas?' + qs.toString());
+  state.bancoList = list;
+  const segs = await api('/perguntas/segmentos');
+  const sel = document.getElementById('filtroSeg');
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">Segmento</option>' + Object.keys(segs).map(s => `<option ${s===cur?'selected':''}>${s}</option>`).join('');
+  const ativas = list.filter(p => p.ativa).length;
+  document.getElementById('bancoContador').textContent = `${ativas} perguntas ativas de ${list.length} total`;
+  document.querySelector('#tabelaBanco tbody').innerHTML = list.map(p => `
+    <tr>
+      <td>${p.texto.slice(0,60)}</td>
+      <td>${p.segmento}</td>
+      <td>${p.especialidade||''}</td>
+      <td><span class="badge">${p.categoria}</span></td>
+      <td>${p.rodada ? p.rodada.toUpperCase() : '—'}</td>
+      <td><input type="checkbox" data-toggle="${p.id}" ${p.ativa?'checked':''}/></td>
+      <td style="white-space:nowrap">
+        <button class="btn ghost" data-edit="${p.id}" style="padding:4px 8px">Editar</button>
+        <button class="btn ghost" data-del="${p.id}" style="padding:4px 8px">Excluir</button>
+      </td>
+    </tr>`).join('');
+  document.querySelector('#tabelaBanco tbody').onchange = async (e) => {
+    if (!e.target.dataset.toggle) return;
+    await api('/perguntas/' + e.target.dataset.toggle, {
+      method:'PUT', body: JSON.stringify({ ativa: e.target.checked })
+    });
+  };
+  document.querySelector('#tabelaBanco tbody').onclick = async (e) => {
+    const editId = e.target.dataset.edit;
+    if (editId) {
+      const p = state.bancoList.find(x => x.id === editId);
+      if (p) openModal('banco', p);
+      return;
+    }
+    if (!e.target.dataset.del) return;
+    if (!confirm('Desativar pergunta?')) return;
+    await api('/perguntas/' + e.target.dataset.del, { method:'DELETE' });
+    carregarBanco();
+  };
+}
+document.getElementById('btnFiltrarBanco').onclick = carregarBanco;
+
+async function carregarHistorico() {
+  const qs = new URLSearchParams({
+    pagina: state.histPagina,
+    limite: 20,
+    favoritos: document.getElementById('histFav').checked,
+  });
+  const seg = document.getElementById('histSeg').value;
+  if (seg) qs.set('segmento', seg);
+  const data = await api('/historico?' + qs.toString());
+  const busca = document.getElementById('histBusca').value.toLowerCase();
+  let itens = data.itens || [];
+  if (busca) itens = itens.filter(i => (i.empresa_nome||'').toLowerCase().includes(busca));
+  document.getElementById('histPag').textContent = data.pagina;
+  document.getElementById('histLista').innerHTML = itens.map(i => `
+    <div class="card">
+      <strong>${i.empresa_nome}</strong> · ${i.especialidade}
+      <div class="muted">${i.created_at || ''} · ${i.cidade}</div>
+      <div class="score-big" style="font-size:28px">${Number(i.score_geral).toFixed(1)}
+        <span class="badge ${i.status}">${(i.status||'').toUpperCase()}</span>
+      </div>
+      <div class="actions">
+        <button class="btn" data-ver="${i.job_id}">Ver</button>
+        <button class="btn ghost" data-dl="${i.job_id}">Baixar</button>
+        <button class="btn ghost" data-fav="${i.job_id}">${i.favorito?'★':'☆'}</button>
+        <button class="btn ghost" data-rm="${i.job_id}">🗑</button>
+      </div>
+    </div>`).join('') || '<p class="muted">Nenhum diagnóstico.</p>';
+  document.getElementById('histLista').onclick = async (e) => {
+    const t = e.target;
+    if (t.dataset.ver) {
+      state.resultado = await api('/historico/' + t.dataset.ver);
+      state.jobId = t.dataset.ver;
+      document.querySelector('[data-tela=resultado]').click();
+    }
+    if (t.dataset.dl) baixarRelatorio(t.dataset.dl);
+    if (t.dataset.fav) { await api('/historico/' + t.dataset.fav + '/fav', { method:'POST' }); carregarHistorico(); }
+    if (t.dataset.rm) { await api('/historico/' + t.dataset.rm, { method:'DELETE' }); carregarHistorico(); }
+  };
+}
+document.getElementById('btnHistFiltrar').onclick = () => { state.histPagina = 1; carregarHistorico(); };
+document.getElementById('btnHistPrev').onclick = () => { state.histPagina = Math.max(1, state.histPagina-1); carregarHistorico(); };
+document.getElementById('btnHistNext').onclick = () => { state.histPagina++; carregarHistorico(); };
+
+async function carregarSaude() {
+  const h = await fetch('/health').then(r => r.json());
+  document.getElementById('saudeApis').innerHTML = Object.entries(h.apis||{}).map(([k,v]) => `
+    <div class="card"><h3>${k}</h3>
+    <span class="badge ${v==='configurado'?'bom':'critico'}">${v}</span></div>`).join('');
+  document.getElementById('saudeBanco').innerHTML = `<h3>Banco de perguntas</h3>
+    <p>${h.banco_perguntas?.ativas||0} ativas / ${h.banco_perguntas?.total||0} total</p>`;
+  document.getElementById('saudeJobs').innerHTML = `<h3>Store de jobs</h3>
+    <span class="badge ${h.jobs_store==='ok'?'bom':'critico'}">${h.jobs_store}</span>`;
+}
+document.getElementById('btnTestarConn').onclick = async () => {
+  const r = await api('/sistema/testar-conexoes', { method:'POST' });
+  alert(JSON.stringify(r, null, 2));
+  carregarSaude();
+};
+</script>
+</body>
+</html>
