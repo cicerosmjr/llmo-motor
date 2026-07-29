@@ -135,12 +135,14 @@ app.include_router(routes.router, prefix="/api")
 # Health também na raiz (Railway healthcheck / Vercel)
 app.add_api_route("/health", routes.health, methods=["GET"])
 
-static_dir = Path("static")
-if not static_dir.is_dir():
-    raise RuntimeError("Pasta static/ ausente no deploy")
-app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
-
 
 @app.get("/")
 def painel():
     return FileResponse("static/painel.html")
+
+
+static_dir = Path("static")
+if not static_dir.is_dir():
+    raise RuntimeError("Pasta static/ ausente no deploy")
+# Mount depois das rotas explícitas (evita shadow em alguns runtimes)
+app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
