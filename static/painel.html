@@ -268,10 +268,12 @@ th,td{padding:8px;border-bottom:1px solid #e5dfd3;text-align:left;vertical-align
     "especialidade": "odontologia estética",
     "rodada": "r1"
   }
-]</pre>
+]
+categorias: reconhecimento | recomendacao | reputacao | servicos | localizacao | generica
+rodadas: r1 | r2 | r3 | r4 | r5</pre>
     <label>JSON</label>
     <textarea id="jsonImportArea" class="json-area" placeholder='[ { "texto": "...", "segmento": "...", "categoria": "recomendacao", "rodada": "r1" } ]'></textarea>
-    <p class="muted" id="jsonImportErr" style="color:var(--danger)"></p>
+    <p class="muted" id="jsonImportErr" style="color:var(--danger);white-space:pre-wrap;margin-top:8px"></p>
     <div class="actions">
       <button class="btn ghost" id="jsonImportCancel">Cancelar</button>
       <button class="btn gold" id="jsonImportApply">Substituir lista</button>
@@ -306,8 +308,21 @@ async function api(path, opts={}) {
   const text = await res.text();
   let data = null;
   try { data = text ? JSON.parse(text) : null; } catch { data = text; }
-  if (!res.ok) throw new Error((data && data.detail) || res.statusText);
+  if (!res.ok) throw new Error(formatApiError(data, res.statusText));
   return data;
+}
+
+function formatApiError(data, fallback) {
+  const d = data && data.detail;
+  if (typeof d === 'string') return d;
+  if (Array.isArray(d)) {
+    return d.map(e => {
+      const loc = Array.isArray(e.loc) ? e.loc.filter(x => x !== 'body').join('.') : '';
+      return (loc ? loc + ': ' : '') + (e.msg || JSON.stringify(e));
+    }).join('; ');
+  }
+  if (d && typeof d === 'object') return JSON.stringify(d);
+  return fallback || 'Erro na API';
 }
 
 // Login
@@ -782,6 +797,76 @@ document.getElementById('modalSave').onclick = async () => {
 };
 
 // Importar JSON no passo 2 — substitui a lista filtrada
+const CATEGORIAS_VALIDAS = ['reconhecimento', 'recomendacao', 'reputacao', 'servicos', 'localizacao', 'generica'];
+const RODADAS_VALIDAS = ['r1', 'r2', 'r3', 'r4', 'r5'];
+const CATEGORIA_ALIASES = { generico: 'generica' };
+
+function normalizarCategoria(valor) {
+  const c = String(valor || '').trim().toLowerCase();
+  if (!c) return '';
+  return CATEGORIA_ALIASES[c] || c;
+}
+
+function validarImportPerguntas(raw) {
+  const erros = [];
+  if (!Array.isArray(raw)) {
+    return { ok: false, erros: ['O JSON deve ser um array [...] de perguntas.'], itens: [] };
+  }
+  if (!raw.length) {
+    return { ok: false, erros: ['Envie pelo menos 1 pergunta no array.'], itens: [] };
+  }
+  if (raw.length > 20) {
+    return {
+      ok: false,
+      erros: [`Máximo de 20 perguntas por importação (você enviou ${raw.length}).`],
+      itens: [],
+    };
+  }
+
+  const itens = [];
+  raw.forEach((item, i) => {
+    const n = i + 1;
+    const prefix = `Item ${n}`;
+    if (!item || typeof item !== 'object' || Array.isArray(item)) {
+      erros.push(`${prefix}: precisa ser um objeto { texto, categoria, ... }.`);
+      return;
+    }
+    if (typeof item.texto !== 'string' || !item.texto.trim()) {
+      erros.push(`${prefix}: campo "texto" é obrigatório.`);
+    }
+    const categoria = normalizarCategoria(item.categoria || 'recomendacao');
+    if (!CATEGORIAS_VALIDAS.includes(categoria)) {
+      erros.push(
+        `${prefix}: categoria "${item.categoria}" inválida. Use: ${CATEGORIAS_VALIDAS.join(', ')}.`
+      );
+    }
+    let rodada = item.rodada == null || item.rodada === '' ? null : String(item.rodada).trim().toLowerCase();
+    if (rodada !== null && !RODADAS_VALIDAS.includes(rodada)) {
+      erros.push(
+        `${prefix}: rodada "${item.rodada}" inválida. Use: ${RODADAS_VALIDAS.join(', ')}.`
+      );
+    }
+    const segmento = String(
+      item.segmento || document.getElementById('segmento').value || 'outro'
+    ).trim();
+    if (!segmento) {
+      erros.push(`${prefix}: campo "segmento" é obrigatório.`);
+    }
+    itens.push({
+      texto: typeof item.texto === 'string' ? item.texto.trim() : '',
+      segmento,
+      categoria,
+      especialidade:
+        item.especialidade ||
+        document.getElementById('especialidade').value.trim() ||
+        null,
+      rodada,
+    });
+  });
+
+  return { ok: erros.length === 0, erros, itens };
+}
+
 document.getElementById('btnImportJson').onclick = () => {
   document.getElementById('jsonImportErr').textContent = '';
   document.getElementById('jsonImportArea').value = '';
@@ -796,32 +881,35 @@ document.getElementById('jsonImportApply').onclick = async () => {
   try {
     raw = JSON.parse(document.getElementById('jsonImportArea').value);
   } catch (e) {
-    errEl.textContent = 'JSON inválido: ' + e.message;
+    errEl.textContent =
+      'JSON inválido: verifique vírgulas, aspas e colchetes.\nDetalhe: ' + e.message;
     return;
   }
-  if (!Array.isArray(raw) || !raw.length) {
-    errEl.textContent = 'Envie um array JSON com pelo menos 1 pergunta.';
+
+  const validacao = validarImportPerguntas(raw);
+  if (!validacao.ok) {
+    errEl.textContent =
+      'Não foi possível importar. Corrija os problemas abaixo:\n\n' +
+      validacao.erros.map(e => '• ' + e).join('\n');
     return;
   }
-  if (raw.length > 20) {
-    errEl.textContent = 'Máximo de 20 perguntas por importação (limite do diagnóstico).';
-    return;
-  }
+
+  const btn = document.getElementById('jsonImportApply');
+  btn.disabled = true;
   try {
     const criadas = [];
-    for (const item of raw) {
-      if (!item || typeof item.texto !== 'string' || !item.texto.trim()) {
-        throw new Error('Cada item precisa de "texto"');
+    for (let i = 0; i < validacao.itens.length; i++) {
+      try {
+        const p = await api('/perguntas', {
+          method: 'POST',
+          body: JSON.stringify(validacao.itens[i]),
+        });
+        criadas.push(p);
+      } catch (e) {
+        throw new Error(
+          `Falha ao salvar a pergunta ${i + 1} no servidor: ${e.message || e}`
+        );
       }
-      const body = {
-        texto: item.texto.trim(),
-        segmento: (item.segmento || document.getElementById('segmento').value || 'outro').trim(),
-        categoria: item.categoria || 'recomendacao',
-        especialidade: item.especialidade || document.getElementById('especialidade').value.trim() || null,
-        rodada: item.rodada || null,
-      };
-      const p = await api('/perguntas', { method:'POST', body: JSON.stringify(body) });
-      criadas.push(p);
     }
     state.perguntas = criadas;
     state.selecionadas = new Set(criadas.map(p => p.id));
@@ -831,6 +919,8 @@ document.getElementById('jsonImportApply').onclick = async () => {
     document.getElementById('modalJson').classList.add('hidden');
   } catch (e) {
     errEl.textContent = e.message || String(e);
+  } finally {
+    btn.disabled = false;
   }
 };
 
