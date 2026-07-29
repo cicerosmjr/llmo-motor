@@ -35,6 +35,7 @@ from models.schemas import (
 )
 from scoring.engine import ScoringEngine
 from scoring.gabarito_blocos import definicao_publica, ids_criterios_validos
+from services.supabase_rest import supabase_configurado
 
 logger = logging.getLogger(__name__)
 security = HTTPBasic()
@@ -46,6 +47,7 @@ orchestrator = None
 report_generator = None
 job_store = None
 servicos_ia: dict[str, Any] = {}
+outputs_dir = "outputs"
 
 # Rate limit simples: 10 diagnósticos/hora
 _rate: dict[str, list[float]] = {}
@@ -57,13 +59,15 @@ def configurar_deps(
     report_generator_,
     job_store_,
     servicos_ia_,
+    outputs_dir_: str = "outputs",
 ) -> None:
-    global banco, orchestrator, report_generator, job_store, servicos_ia
+    global banco, orchestrator, report_generator, job_store, servicos_ia, outputs_dir
     banco = banco_
     orchestrator = orchestrator_
     report_generator = report_generator_
     job_store = job_store_
     servicos_ia = servicos_ia_
+    outputs_dir = outputs_dir_
 
 
 def verificar_auth(credentials: HTTPBasicCredentials = Depends(security)) -> str:
@@ -235,7 +239,7 @@ async def _rodar_job(job_id: UUID, request: DiagnosticoRequest) -> None:
         resultado = await orchestrator.rodar_diagnostico(request, on_progress)
         # salva HTML
         try:
-            report_generator.salvar_html(resultado)
+            report_generator.salvar_html(resultado, pasta=outputs_dir)
         except Exception as e:  # noqa: BLE001
             logger.warning("Falha ao salvar HTML: %s", e)
 
@@ -500,6 +504,7 @@ def health():
         "apis": apis,
         "banco_perguntas": {"total": total, "ativas": ativas},
         "jobs_store": "ok" if jobs_ok else "erro",
+        "persistencia": "supabase" if supabase_configurado() else "disco",
     }
 
 

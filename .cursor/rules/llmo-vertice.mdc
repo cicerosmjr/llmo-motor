@@ -14,12 +14,13 @@ de advocacia, clínica de psicologia. Nunca profissional autônomo isolado.
 
 ## Stack
 - Python 3.11 + FastAPI
-- Deploy: Railway
+- Deploy: Railway (disco) ou Vercel + Supabase (serverless)
 - IAs: Claude (Anthropic), ChatGPT (OpenAI), Gemini (Google), Perplexity
-- Armazenamento:
-  - JSON em disco: banco de perguntas (`data/perguntas.json`)
-  - JSON em disco: jobs/histórico (`data/jobs/`) — sobrevive a restart
-  - Dict em memória: cache de progresso do job ativo (espelhado no disco)
+- Armazenamento (dual — escolhido por env):
+  - Local/Railway: JSON em `data/perguntas.json` + `data/jobs/`
+  - Vercel: Supabase (`SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY`) —
+    tabelas `llmo_jobs` e `llmo_perguntas` (ver `sql/supabase_schema.sql`)
+  - Cache em memória do job ativo (espelhado no backend ativo)
 - Painel: HTML/CSS/JS puro em /static/painel.html
 - Auditor técnico: `services/site_auditor.py` (crawl do site_url para SEO/LLMO)
 

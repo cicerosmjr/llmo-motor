@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 import os
+import tempfile
 import time
 from pathlib import Path
 
@@ -23,6 +24,7 @@ from services.openai_service import OpenAIService
 from services.orchestrator import LLMOOrchestrator
 from services.perplexity_service import PerplexityService
 from services.site_auditor import SiteAuditor
+from services.supabase_rest import supabase_configurado
 
 load_dotenv()
 
@@ -32,11 +34,42 @@ logging.basicConfig(
 )
 logger = logging.getLogger("llmo")
 
-Path("data/jobs").mkdir(parents=True, exist_ok=True)
-Path("outputs").mkdir(parents=True, exist_ok=True)
+
+def _garantir_dir(caminho: Path) -> Path | None:
+    """Cria diretório se o FS permitir; na Vercel (read-only) retorna None."""
+    try:
+        caminho.mkdir(parents=True, exist_ok=True)
+        return caminho
+    except OSError as e:
+        logger.warning("Diretório %s indisponível (%s)", caminho, e)
+        return None
+
+
+def _dir_outputs() -> str:
+    """outputs/ local, ou /tmp/llmo-outputs em FS read-only."""
+    if _garantir_dir(Path("outputs")):
+        return "outputs"
+    tmp = Path(tempfile.gettempdir()) / "llmo-outputs"
+    _garantir_dir(tmp)
+    return str(tmp)
+
+
+_usa_supabase = supabase_configurado()
+if _usa_supabase:
+    logger.info("Persistência: Supabase")
+    job_store = JobStore(usar_supabase=True)
+else:
+    jobs_dir = _garantir_dir(Path("data/jobs"))
+    if jobs_dir is None:
+        raise RuntimeError(
+            "Filesystem read-only e Supabase não configurado. "
+            "Defina SUPABASE_URL e SUPABASE_SERVICE_ROLE_KEY "
+            "(veja sql/supabase_schema.sql e DEPLOY.md)."
+        )
+    job_store = JobStore(jobs_dir)
 
 banco = BancoPerguntas()
-job_store = JobStore("data/jobs")
+_outputs = _dir_outputs()
 
 claude = ClaudeService(os.getenv("ANTHROPIC_API_KEY", ""))
 openai_svc = OpenAIService(os.getenv("OPENAI_API_KEY", ""))
@@ -65,6 +98,7 @@ routes.configurar_deps(
         "gemini": gemini,
         "perplexity": perplexity,
     },
+    outputs_dir_=_outputs,
 )
 
 app = FastAPI(title="LLMO Vértice Carioca", version="2.1.0")
@@ -88,11 +122,12 @@ async def log_requests(request: Request, call_next):
 
 
 app.include_router(routes.router, prefix="/api")
-# Health também na raiz (Railway healthcheck)
+# Health também na raiz (Railway healthcheck / Vercel)
 app.add_api_route("/health", routes.health, methods=["GET"])
 
 static_dir = Path("static")
-static_dir.mkdir(exist_ok=True)
+if not static_dir.is_dir():
+    raise RuntimeError("Pasta static/ ausente no deploy")
 app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
 
 

@@ -1,13 +1,15 @@
-"""Banco de perguntas LLMO — persistência em JSON."""
+"""Banco de perguntas LLMO — JSON local ou Supabase."""
 
 from __future__ import annotations
 
 import json
 import logging
+from datetime import datetime
 from pathlib import Path
 from uuid import UUID, uuid4
 
 from models.schemas import BancoPerguntasQuery, CategoriaEnum, Pergunta, RodadaEnum
+from services.supabase_rest import SupabaseRest, supabase_configurado
 
 logger = logging.getLogger(__name__)
 
@@ -27,25 +29,42 @@ class BancoPerguntas:
     CAMINHO_SEED = Path("data/perguntas_seed.json")
     CAMINHO_BANCO = Path("data/perguntas.json")
 
-    def __init__(self) -> None:
+    def __init__(self, *, supabase: SupabaseRest | None = None) -> None:
         self._perguntas: list[Pergunta] = []
+        self._sb: SupabaseRest | None = None
+        if supabase is not None or supabase_configurado():
+            self._sb = supabase or SupabaseRest()
+            logger.info("BancoPerguntas: backend Supabase")
         self.carregar()
 
     def carregar(self) -> None:
+        if self._sb is not None:
+            self._carregar_supabase()
+            return
+
         if self.CAMINHO_BANCO.exists():
             raw = json.loads(self.CAMINHO_BANCO.read_text(encoding="utf-8"))
         elif self.CAMINHO_SEED.exists():
             raw = json.loads(self.CAMINHO_SEED.read_text(encoding="utf-8"))
-            self.CAMINHO_BANCO.parent.mkdir(parents=True, exist_ok=True)
-            # Atribui UUIDs ao copiar do seed
             perguntas = []
             for item in raw:
                 dados = dict(item)
                 dados.setdefault("id", str(uuid4()))
                 perguntas.append(Pergunta.model_validate(dados))
             self._perguntas = perguntas
-            self.salvar()
-            logger.info("Banco inicializado a partir do seed (%s perguntas)", len(self._perguntas))
+            try:
+                self.salvar()
+            except OSError as e:
+                # Vercel/read-only: opera só em memória a partir do seed
+                logger.warning(
+                    "Banco em memória (FS read-only): %s. "
+                    "Configure Supabase para persistir edições.",
+                    e,
+                )
+            logger.info(
+                "Banco inicializado a partir do seed (%s perguntas)",
+                len(self._perguntas),
+            )
             return
         else:
             self._perguntas = []
@@ -54,13 +73,79 @@ class BancoPerguntas:
         self._perguntas = [Pergunta.model_validate(item) for item in raw]
         logger.info("Banco carregado: %s perguntas", len(self._perguntas))
 
+    def _carregar_supabase(self) -> None:
+        assert self._sb is not None
+        rows = self._sb.select(
+            "llmo_perguntas",
+            params={"select": "id,dados", "order": "updated_at.asc"},
+        )
+        if not rows and self.CAMINHO_SEED.exists():
+            raw = json.loads(self.CAMINHO_SEED.read_text(encoding="utf-8"))
+            perguntas: list[Pergunta] = []
+            for item in raw:
+                dados = dict(item)
+                dados.setdefault("id", str(uuid4()))
+                perguntas.append(Pergunta.model_validate(dados))
+            self._perguntas = perguntas
+            self.salvar()
+            logger.info(
+                "Banco Supabase inicializado do seed (%s perguntas)",
+                len(self._perguntas),
+            )
+            return
+
+        self._perguntas = [
+            Pergunta.model_validate(row["dados"]) for row in rows if row.get("dados")
+        ]
+        logger.info("Banco Supabase carregado: %s perguntas", len(self._perguntas))
+
     def salvar(self) -> None:
+        if self._sb is not None:
+            agora = datetime.utcnow().isoformat()
+            rows = [
+                {
+                    "id": str(p.id),
+                    "dados": p.model_dump(mode="json"),
+                    "updated_at": agora,
+                }
+                for p in self._perguntas
+            ]
+            # Upsert em lotes para não estourar payload
+            lote = 100
+            for i in range(0, len(rows), lote):
+                self._sb.upsert(
+                    "llmo_perguntas",
+                    rows[i : i + lote],
+                    on_conflict="id",
+                )
+            return
+
         self.CAMINHO_BANCO.parent.mkdir(parents=True, exist_ok=True)
         payload = [p.model_dump(mode="json") for p in self._perguntas]
         self.CAMINHO_BANCO.write_text(
             json.dumps(payload, ensure_ascii=False, indent=2),
             encoding="utf-8",
         )
+
+    def _persistir_uma(self, pergunta: Pergunta) -> None:
+        if self._sb is None:
+            self.salvar()
+            return
+        self._sb.upsert(
+            "llmo_perguntas",
+            {
+                "id": str(pergunta.id),
+                "dados": pergunta.model_dump(mode="json"),
+                "updated_at": datetime.utcnow().isoformat(),
+            },
+            on_conflict="id",
+        )
+
+    def _remover_uma(self, id: UUID) -> None:
+        if self._sb is None:
+            self.salvar()
+            return
+        self._sb.delete("llmo_perguntas", params={"id": f"eq.{id}"})
 
     def listar(self, query: BancoPerguntasQuery | None = None) -> list[Pergunta]:
         query = query or BancoPerguntasQuery()
@@ -109,7 +194,7 @@ class BancoPerguntas:
             rodada=rodada_enum,
         )
         self._perguntas.append(pergunta)
-        self.salvar()
+        self._persistir_uma(pergunta)
         return pergunta
 
     def atualizar(self, id: UUID, dados: dict) -> Pergunta:
@@ -123,13 +208,12 @@ class BancoPerguntas:
             update["categoria"] = CategoriaEnum(update["categoria"])
         if "rodada" in update and isinstance(update["rodada"], str):
             update["rodada"] = RodadaEnum(update["rodada"])
-        # Permite limpar rodada enviando null via exclude_unset=False path
         if "rodada" in dados and dados["rodada"] is None:
             update["rodada"] = None
 
         atualizada = pergunta.model_copy(update=update)
         self._perguntas = [atualizada if p.id == id else p for p in self._perguntas]
-        self.salvar()
+        self._persistir_uma(atualizada)
         return atualizada
 
     def desativar(self, id: UUID) -> None:
@@ -140,7 +224,7 @@ class BancoPerguntas:
         self._perguntas = [p for p in self._perguntas if p.id != id]
         if len(self._perguntas) == antes:
             raise KeyError(f"Pergunta {id} não encontrada")
-        self.salvar()
+        self._remover_uma(id)
 
     def sugerir_para_diagnostico(
         self,
@@ -168,7 +252,6 @@ class BancoPerguntas:
 
         pool = da_especialidade + do_segmento + genericas
 
-        # Prioriza conjunto completo por rodada (Bloco 1) quando disponível
         por_rodada = self._sugerir_por_rodada(pool, limite)
         if por_rodada:
             return por_rodada
@@ -207,20 +290,17 @@ class BancoPerguntas:
             assert p.rodada is not None
             por_r[p.rodada].append(p)
 
-        # Exige pelo menos uma pergunta em cada rodada para ativar o modo Bloco 1
         if not all(por_r[r] for r in RODADAS_ORDEM):
             return []
 
         selecionadas: list[Pergunta] = []
         usados: set[UUID] = set()
 
-        # 1ª passagem: 1 de cada rodada
         for r in RODADAS_ORDEM:
             p = por_r[r][0]
             selecionadas.append(p)
             usados.add(p.id)
 
-        # 2ª passagem: preenche restantes por ordem de rodada
         while len(selecionadas) < limite:
             adicionou = False
             for r in RODADAS_ORDEM:
