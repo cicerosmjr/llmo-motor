@@ -37,11 +37,14 @@ Dimensões e pesos:
 - autoridade_citacao: 25%
 - conteudo: 20%
 
-Escala de citação:
-- detalhado → 10 pts
-- superficial → 6 pts
-- vago → 3 pts
-- nao_citado → 0 pts
+Escala de citação (0/2/5/7/9/10), com teto por rodada:
+- nao_citado → 0 (ausência, negação ou marca errada)
+- nome_direto → 2 (R4: busca pelo nome; máximo absoluto nesta rodada)
+- mencao → 5 (R3 fraco / menção sem recomendação)
+- recomendado → 7 (R1/R2 ou R3 forte)
+- autoridade → 9 (R5 sem ser 1º/único; R1/R2 com detalhe)
+- referencia → 10 (R5 forte / referência dominante)
+- erro_api → excluído das médias (cota/falha ≠ não citado)
 
 Pesos por IA (para score de autoridade) — refletir share de uso no BR:
 - chatgpt: 40%   ← maior peso (mais usado pelos clientes finais)

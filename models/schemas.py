@@ -28,18 +28,34 @@ class SegmentoEnum(str, Enum):
 
 
 class NivelCitacaoEnum(str, Enum):
+    """Escala de citação 0/2/5/7/9/10 (+ erro_api e aliases legados)."""
+
+    nao_citado = "nao_citado"  # 0
+    nome_direto = "nome_direto"  # 2 — só em busca pelo nome (R4)
+    mencao = "mencao"  # 5
+    recomendado = "recomendado"  # 7
+    autoridade = "autoridade"  # 9
+    referencia = "referencia"  # 10
+    erro_api = "erro_api"  # dado ausente (cota/falha) — não entra na média
+    # Aliases legados (jobs antigos)
     detalhado = "detalhado"
     superficial = "superficial"
     vago = "vago"
-    nao_citado = "nao_citado"
 
 
-# Labels exibidos no painel/relatório (valores do enum permanecem estáveis)
+# Labels exibidos no painel/relatório
 LABEL_NIVEL_CITACAO: dict[str, str] = {
+    "nao_citado": "não citado (0)",
+    "nome_direto": "nome direto (2)",
+    "mencao": "menção (5)",
+    "recomendado": "recomendado (7)",
+    "autoridade": "autoridade (9)",
+    "referencia": "referência (10)",
+    "erro_api": "erro de API",
+    # legado
     "detalhado": "citado detalhado",
     "superficial": "citado",
     "vago": "vago",
-    "nao_citado": "nao_citado",
 }
 
 

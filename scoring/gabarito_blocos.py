@@ -68,6 +68,7 @@ BLOCOS_MANUAIS_DEFINICAO: list[dict[str, Any]] = [
             {
                 "id": "b3_doctoralia",
                 "label": "Doctoralia / iClinic / ZocDoc",
+                "segmentos": ["medicina", "psicologia", "odontologia"],
                 "como_verificar": (
                     "Buscar a empresa nos diretórios e verificar completude do perfil"
                 ),
@@ -83,6 +84,7 @@ BLOCOS_MANUAIS_DEFINICAO: list[dict[str, Any]] = [
             {
                 "id": "b3_boaconsulta",
                 "label": "Boa Consulta / Agendar.com.br",
+                "segmentos": ["medicina", "psicologia", "odontologia"],
                 "como_verificar": "Buscar em boaconsulta.com.br e agendar.com",
                 "gabarito": (
                     "0 → Não existe perfil no diretório\n"
@@ -283,14 +285,32 @@ BLOCOS_MANUAIS_DEFINICAO: list[dict[str, Any]] = [
 ]
 
 
-def ids_criterios_validos() -> set[str]:
+def _criterio_aplica(criterio: dict[str, Any], segmento: str | None) -> bool:
+    """Critério sem 'segmentos' vale para todos; com lista, só nos segmentos indicados."""
+    segs = criterio.get("segmentos")
+    if not segs or segmento is None:
+        return True
+    return str(segmento).lower() in {s.lower() for s in segs}
+
+
+def blocos_para_segmento(segmento: str | None = None) -> list[dict[str, Any]]:
+    """Definição dos blocos 2–6 filtrada pelo segmento (None = todos os critérios)."""
+    resultado: list[dict[str, Any]] = []
+    for bloco in BLOCOS_MANUAIS_DEFINICAO:
+        criterios = [c for c in bloco["criterios"] if _criterio_aplica(c, segmento)]
+        if criterios:
+            resultado.append({**bloco, "criterios": criterios})
+    return resultado
+
+
+def ids_criterios_validos(segmento: str | None = None) -> set[str]:
     return {
         c["id"]
-        for bloco in BLOCOS_MANUAIS_DEFINICAO
+        for bloco in blocos_para_segmento(segmento)
         for c in bloco["criterios"]
     }
 
 
-def definicao_publica() -> list[dict[str, Any]]:
+def definicao_publica(segmento: str | None = None) -> list[dict[str, Any]]:
     """Payload para a UI (sem lógica de cálculo)."""
-    return BLOCOS_MANUAIS_DEFINICAO
+    return blocos_para_segmento(segmento)

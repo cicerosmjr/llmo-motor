@@ -326,9 +326,12 @@ def resultado_diagnostico(job_id: UUID, _: str = Depends(verificar_auth)):
 
 
 @router.get("/diagnostico/gabarito-blocos")
-def gabarito_blocos_manuais(_: str = Depends(verificar_auth)):
-    """Definição dos critérios dos blocos 2–6 para a UI."""
-    return {"blocos": definicao_publica()}
+def gabarito_blocos_manuais(
+    segmento: str | None = None,
+    _: str = Depends(verificar_auth),
+):
+    """Definição dos critérios dos blocos 2–6 para a UI (filtrável por segmento)."""
+    return {"blocos": definicao_publica(segmento)}
 
 
 @router.put("/diagnostico/{job_id}/blocos-manuais")
@@ -347,13 +350,19 @@ def atualizar_blocos_manuais(
     if job.get("status") != "concluido" or not job.get("resultado"):
         raise HTTPException(400, "Diagnóstico ainda não concluído")
 
-    desconhecidos = set(body.notas.keys()) - ids_criterios_validos()
+    resultado = DiagnosticoResult.model_validate(job["resultado"])
+    segmento = (
+        resultado.request.segmento.value
+        if hasattr(resultado.request.segmento, "value")
+        else str(resultado.request.segmento)
+    )
+    validos = ids_criterios_validos(segmento)
+    desconhecidos = set(body.notas.keys()) - validos
     if desconhecidos:
         raise HTTPException(
             400, f"Critérios desconhecidos: {', '.join(sorted(desconhecidos))}"
         )
 
-    resultado = DiagnosticoResult.model_validate(job["resultado"])
     bloco1_media = (
         resultado.bloco1_visibilidade.media
         if resultado.bloco1_visibilidade
@@ -371,7 +380,9 @@ def atualizar_blocos_manuais(
             notas_atuais[cid] = nota
 
     scoring = ScoringEngine()
-    planilha = scoring.calcular_blocos_manuais_e_total(bloco1_media, notas_atuais)
+    planilha = scoring.calcular_blocos_manuais_e_total(
+        bloco1_media, notas_atuais, segmento=segmento
+    )
     resultado.diagnostico_planilha = planilha
 
     job["resultado"] = resultado.model_dump(mode="json")

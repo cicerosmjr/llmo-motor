@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import html
 import re
 from datetime import datetime
 from pathlib import Path
@@ -78,6 +79,7 @@ class ReportGenerator:
   .bar > i {{ display:block; height:100%; border-radius:4px; }}
   table {{ width:100%; border-collapse:collapse; font-size:14px; }}
   th,td {{ border-bottom:1px solid #e5dfd3; padding:8px; text-align:left; vertical-align:top; }}
+  td.resposta {{ white-space:pre-wrap; word-break:break-word; }}
   .ok {{ background:#eaf7ef; }}
   .nok {{ background:#fcecea; }}
   .checks {{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }}
@@ -273,20 +275,41 @@ class ReportGenerator:
             por_ia.setdefault(r.ia_nome, []).append(r)
         blocos = []
         for ia, items in por_ia.items():
-            media = sum(i.pontuacao for i in items) / len(items) if items else 0
-            taxa = sum(1 for i in items if i.citou_empresa) / len(items) if items else 0
+            validos = [
+                i
+                for i in items
+                if i.nivel_citacao.value != "erro_api"
+                and not (i.resposta_completa or "").startswith("ERRO_")
+            ]
+            erros = len(items) - len(validos)
+            media = (
+                sum(i.pontuacao for i in validos) / len(validos) if validos else 0
+            )
+            taxa = (
+                sum(1 for i in validos if i.citou_empresa) / len(validos)
+                if validos
+                else 0
+            )
             rows = []
             for i in items:
-                cls = "ok" if i.citou_empresa else "nok"
-                resp = (i.resposta_completa or "")[:150]
+                if i.nivel_citacao.value == "erro_api" or (
+                    i.resposta_completa or ""
+                ).startswith("ERRO_"):
+                    cls = "nok"
+                else:
+                    cls = "ok" if i.citou_empresa else "nok"
+                pergunta = html.escape(i.pergunta_texto or "")
+                resp = html.escape(i.resposta_completa or "")
                 rows.append(
-                    f"<tr class='{cls}'><td>{i.pergunta_texto[:80]}</td>"
-                    f"<td>{resp}</td><td>{label_nivel_citacao(i.nivel_citacao)}</td>"
+                    f"<tr class='{cls}'><td>{pergunta}</td>"
+                    f"<td class='resposta'>{resp}</td>"
+                    f"<td>{label_nivel_citacao(i.nivel_citacao)}</td>"
                     f"<td>{i.pontuacao}</td></tr>"
                 )
+            extra = f" · {erros} erro(s) de API excluídos da média" if erros else ""
             blocos.append(
                 f"<div class='card' style='margin-bottom:12px'><h3>{ia.title()}</h3>"
-                f"<p>Score médio: {media:.1f} · Taxa de citação: {taxa:.0%}</p>"
+                f"<p>Score médio: {media:.1f} · Taxa de citação: {taxa:.0%}{extra}</p>"
                 f"<table><tr><th>Pergunta</th><th>Resposta</th><th>Nível</th><th>Pts</th></tr>"
                 f"{''.join(rows)}</table></div>"
             )

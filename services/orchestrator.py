@@ -110,11 +110,15 @@ class LLMOOrchestrator:
         checks = await auditor_task
         progress("Auditoria concluída", 85)
 
-        # 5–6. Avaliar respostas
+        # 5–6. Avaliar respostas (com teto por rodada R1–R5)
         resultados_ias: list[ResultadoIA] = []
         for ia_nome, pares in resultados_brutos:
             for pid, resposta in pares:
-                avaliacao = self.scoring.avaliar_resposta(resposta, request.empresa_nome)
+                avaliacao = self.scoring.avaliar_resposta(
+                    resposta,
+                    request.empresa_nome,
+                    rodada=mapa_rodada.get(pid),
+                )
                 resultados_ias.append(
                     ResultadoIA(
                         ia_nome=ia_nome,
@@ -160,6 +164,7 @@ class LLMOOrchestrator:
         planilha = self.scoring.calcular_blocos_manuais_e_total(
             bloco1_media=bloco1.media,
             notas={},
+            segmento=request.segmento.value,
         )
 
         # 10. Plano de ação

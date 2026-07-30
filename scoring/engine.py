@@ -21,7 +21,7 @@ from models.schemas import (
     StatusCriterioEnum,
     StatusEnum,
 )
-from scoring.gabarito_blocos import BLOCOS_MANUAIS_DEFINICAO, ids_criterios_validos
+from scoring.gabarito_blocos import blocos_para_segmento, ids_criterios_validos
 
 
 class ScoringEngine:
@@ -39,11 +39,19 @@ class ScoringEngine:
         "claude": 0.15,
     }
 
+    # Escala planilha: 0 / 2 / 5 / 7 / 9 / 10
     PONTUACAO_CITACAO = {
+        "nao_citado": 0.0,
+        "nome_direto": 2.0,
+        "mencao": 5.0,
+        "recomendado": 7.0,
+        "autoridade": 9.0,
+        "referencia": 10.0,
+        "erro_api": 0.0,
+        # legado (jobs antigos)
         "detalhado": 10.0,
         "superficial": 6.0,
         "vago": 3.0,
-        "nao_citado": 0.0,
     }
 
     SEO_PONTOS = {
@@ -78,11 +86,34 @@ class ScoringEngine:
         r"fundad[oa]|desde\s+\d{4}|prêmio|especialista|doutor|dra?\.)\b",
     )
 
+    # Recusa / desconhecimento — NÃO é citação positiva
+    NEGACAO_PADROES = re.compile(
+        r"(?i)(?:"
+        r"n[aã]o\s+(?:tenho|encontrei|possuo|conhe[cç]o|localizei|identifiquei|"
+        r"encontrei\s+nenhum|achei|há\s+registros?\s+p[uú]blicos)|"
+        r"n[aã]o\s+(?:posso|consigo)\s+confirmar|"
+        r"n[aã]o\s+(?:seria|é)\s+(?:responsável|apropriado)|"
+        r"n[aã]o\s+posso\s+confirmar\s+(?:sua\s+)?exist[eê]ncia|"
+        r"sem\s+(?:informa[cç][oõ]es|dados)\s+(?:confi[aá]veis|espec[ií]ficas|atualizadas)|"
+        r"n[aã]o\s+tenho\s+(?:informa[cç][oõ]es|dados)\s+"
+        r"(?:confi[aá]veis|atualizadas|espec[ií]ficas)|"
+        r"desconhe[cç]o|"
+        r"n[aã]o\s+tenho\s+como\s+(?:verificar|confirmar)|"
+        r"n[aã]o\s+seria\s+(?:respons[aá]vel\s+)?recomendar"
+        r")"
+    )
+
+    RECOMENDACAO_PADROES = re.compile(
+        r"(?i)\b(?:recomendo|recomendar|indicação|indico|destaque|referência|"
+        r"melhor\s+op[cç][aã]o|altamente\s+recomendad[oa]|vale\s+a\s+pena)\b"
+    )
+
     # Palavras genéricas demais para citação parcial isolada
     STOPWORDS_NOME = {
         "clinica", "clínica", "clinic", "escritorio", "escritório",
         "instituto", "centro", "hospital", "laboratorio", "laboratório",
         "empresa", "ltda", "sao", "são", "dos", "das", "del",
+        "advocacia", "advogados", "associados", "associado",
     }
 
     # Termos de especialidade — sozinhos não identificam a empresa
@@ -93,15 +124,28 @@ class ScoringEngine:
         "depressão", "psicologia", "infantil", "geral",
     }
 
-    def avaliar_resposta(self, resposta: str, empresa_nome: str) -> dict[str, Any]:
-        if not resposta or resposta.startswith("ERRO_"):
-            return {
-                "citou": False,
-                "nivel": NivelCitacaoEnum.nao_citado.value,
-                "pontuacao": 0.0,
-                "trecho": None,
-                "concorrentes": [],
-            }
+    def avaliar_resposta(
+        self,
+        resposta: str,
+        empresa_nome: str,
+        rodada: str | None = None,
+    ) -> dict[str, Any]:
+        """
+        Avalia citação com escala 0/2/5/7/9/10 e teto por rodada.
+
+        - R4 (nome direto): máximo nome_direto (2), nunca 7–10.
+        - Negação / desconhecimento → nao_citado (0).
+        - Marca parcial (só parte do nome) com 2+ tokens de marca → nao_citado.
+        - ERRO_* → erro_api (excluído das médias de autoridade).
+        """
+        if not resposta:
+            return self._resultado_avaliacao(
+                False, NivelCitacaoEnum.nao_citado, concorrentes=[]
+            )
+        if resposta.startswith("ERRO_"):
+            return self._resultado_avaliacao(
+                False, NivelCitacaoEnum.erro_api, concorrentes=[]
+            )
 
         texto = resposta
         nome = empresa_nome.strip()
@@ -115,25 +159,32 @@ class ScoringEngine:
         brand_tokens = [t for t in tokens if t not in self.ESPECIALIDADE_TOKENS]
         citou_completo = nome_lower in resp_lower
 
-        brand_hits = [t for t in brand_tokens if t in resp_lower]
-        # Citação parcial (vaga): pelo menos um token de marca distintivo
-        citou_parcial = bool(brand_hits) or (
-            not brand_tokens and sum(1 for t in tokens if t in resp_lower) >= 2
-        )
+        # Com 2+ tokens de marca, exige nome completo (evita "Oliveira Advocacia"
+        # bater em "Oliveira Leite Advocacia").
+        if len(brand_tokens) >= 2:
+            citou_parcial = False
+        else:
+            brand_hits = [t for t in brand_tokens if t in resp_lower]
+            citou_parcial = bool(brand_hits) or (
+                not brand_tokens and sum(1 for t in tokens if t in resp_lower) >= 2
+            )
+
+        concorrentes = self._extrair_concorrentes_heuristica(texto, nome)
 
         if not citou_completo and not citou_parcial:
-            return {
-                "citou": False,
-                "nivel": NivelCitacaoEnum.nao_citado.value,
-                "pontuacao": 0.0,
-                "trecho": None,
-                "concorrentes": self._extrair_concorrentes_heuristica(texto, nome),
-            }
+            return self._resultado_avaliacao(
+                False, NivelCitacaoEnum.nao_citado, concorrentes=concorrentes
+            )
 
-        # Localiza trecho
+        # Negação / recusa: nome no texto sem reconhecimento real
+        if self.NEGACAO_PADROES.search(texto):
+            return self._resultado_avaliacao(
+                False, NivelCitacaoEnum.nao_citado, concorrentes=concorrentes
+            )
+
         idx = resp_lower.find(nome_lower) if citou_completo else -1
-        if idx < 0:
-            for p in brand_hits or tokens:
+        if idx < 0 and citou_parcial:
+            for p in brand_tokens or tokens:
                 idx = resp_lower.find(p)
                 if idx >= 0:
                     break
@@ -142,55 +193,172 @@ class ScoringEngine:
         trecho = texto[ini:fim].strip() if idx >= 0 else None
 
         tem_detalhe = bool(re.search(self.DETALHES_MARCADORES[0], texto, re.I))
-        if citou_completo and tem_detalhe:
-            nivel = NivelCitacaoEnum.detalhado
-        elif citou_completo:
-            nivel = NivelCitacaoEnum.superficial
-        else:
-            nivel = NivelCitacaoEnum.vago
+        parece_principal = bool(self.RECOMENDACAO_PADROES.search(texto)) or (
+            citou_completo and idx >= 0 and idx < 200
+        )
 
+        nivel = self._nivel_por_rodada(
+            rodada=rodada,
+            citou_completo=citou_completo,
+            tem_detalhe=tem_detalhe,
+            parece_principal=parece_principal,
+        )
+
+        return self._resultado_avaliacao(
+            True, nivel, trecho=trecho[:200] if trecho else None, concorrentes=concorrentes
+        )
+
+    def _resultado_avaliacao(
+        self,
+        citou: bool,
+        nivel: NivelCitacaoEnum,
+        trecho: str | None = None,
+        concorrentes: list[str] | None = None,
+    ) -> dict[str, Any]:
         return {
-            "citou": True,
+            "citou": citou,
             "nivel": nivel.value,
             "pontuacao": self.PONTUACAO_CITACAO[nivel.value],
-            "trecho": trecho[:200] if trecho else None,
-            "concorrentes": self._extrair_concorrentes_heuristica(texto, nome),
+            "trecho": trecho,
+            "concorrentes": concorrentes or [],
         }
 
+    def _nivel_por_rodada(
+        self,
+        rodada: str | None,
+        citou_completo: bool,
+        tem_detalhe: bool,
+        parece_principal: bool,
+    ) -> NivelCitacaoEnum:
+        """Mapeia rodada + qualidade → nível da escala 0/2/5/7/9/10."""
+        r = (rodada or "").lower().strip()
+
+        # R4: busca pelo nome — teto absoluto = 2
+        if r == "r4":
+            return NivelCitacaoEnum.nome_direto
+
+        # Citação parcial (1 token) sem nome completo → no máximo menção
+        if not citou_completo:
+            return NivelCitacaoEnum.mencao
+
+        if r == "r3":
+            return (
+                NivelCitacaoEnum.recomendado
+                if tem_detalhe or parece_principal
+                else NivelCitacaoEnum.mencao
+            )
+
+        if r in ("r1", "r2"):
+            if tem_detalhe and parece_principal:
+                return NivelCitacaoEnum.autoridade
+            if tem_detalhe or parece_principal:
+                return NivelCitacaoEnum.recomendado
+            return NivelCitacaoEnum.mencao
+
+        if r == "r5":
+            if tem_detalhe or parece_principal:
+                return NivelCitacaoEnum.referencia
+            return NivelCitacaoEnum.autoridade
+
+        # Sem rodada: qualidade pura na escala nova
+        if tem_detalhe and parece_principal:
+            return NivelCitacaoEnum.referencia
+        if tem_detalhe:
+            return NivelCitacaoEnum.autoridade
+        if parece_principal:
+            return NivelCitacaoEnum.recomendado
+        return NivelCitacaoEnum.mencao
+
+    # Indicadores de logradouro — "R. Dr. Gilberto Studart" não é concorrente
+    ENDERECO_ANTES = re.compile(
+        r"(?i)(?:^|[\s,;])(?:rua|r\.|av\.|avenida|alameda|travessa|trav\.|"
+        r"rodovia|estrada|praça|praca|largo|viela)\s*$"
+    )
+    ENDERECO_DEPOIS = re.compile(
+        r"^\s*,?\s*(?:n[ºo°.]?\s*)?\d{1,5}\b",
+        re.I,
+    )
+
     def _extrair_concorrentes_heuristica(self, texto: str, empresa: str) -> list[str]:
-        # Heurística simples: padrões "Clínica X", "Dr. Y"
-        candidatos = re.findall(
-            r"\b(?:Clínica|Clinic|Escritório|Dr\.|Dra\.|Instituto)\s+[A-ZÀ-Ú][\wÀ-ú\'\-]+(?:\s+[A-ZÀ-Ú][\wÀ-ú\'\-]+){0,3}",
-            texto,
-        )
+        """Extrai clínicas, Drs. e bancas/escritórios (ex.: X & Y Advogados)."""
+        padroes = [
+            # Prefixo institucional / Dr.
+            r"\b(?:Clínica|Clinic|Escritório|Instituto|Dr\.|Dra\.)\s+"
+            r"[A-ZÀ-Ú][\wÀ-ú\'\-]+(?:\s+[A-ZÀ-Ú][\wÀ-ú\'\-]+){0,4}",
+            # Banca: Nome & Nome Advogados / Advocacia
+            r"\b[A-ZÀ-Ú][\wÀ-ú\'\-]+(?:\s+(?:&|e)\s+[A-ZÀ-Ú][\wÀ-ú\'\-]+)+"
+            r"\s+(?:Advogados|Advocacia|Associados)\b",
+            # Nome Advogados / Advocacia / Associados
+            r"\b[A-ZÀ-Ú][\wÀ-ú\'\-]+(?:\s+[A-ZÀ-Ú][\wÀ-ú\'\-]+){0,3}\s+"
+            r"(?:Advogados|Advocacia|Associados)\b",
+        ]
         empresa_l = empresa.lower()
         out: list[str] = []
-        for c in candidatos:
-            if empresa_l not in c.lower() and c not in out:
-                out.append(c)
-        return out[:5]
+        for padrao in padroes:
+            for m in re.finditer(padrao, texto):
+                nome = m.group(0).strip().rstrip(".,;")
+                if empresa_l in nome.lower():
+                    continue
+                if self._parece_endereco(texto, m.start(), m.end()):
+                    continue
+                if nome not in out:
+                    out.append(nome)
+        return out[:15]
+
+    def _parece_endereco(self, texto: str, inicio: int, fim: int) -> bool:
+        """True se o match está em logradouro (ex.: R. Dr. Gilberto Studart, 55)."""
+        prefixo = texto[max(0, inicio - 24) : inicio]
+        if self.ENDERECO_ANTES.search(prefixo):
+            return True
+        sufixo = texto[fim : fim + 20]
+        if self.ENDERECO_DEPOIS.match(sufixo):
+            # Só descarta Dr./Dra. seguido de número (padrão de rua)
+            trecho = texto[inicio:fim]
+            if re.match(r"(?i)^dra?\.\s+", trecho):
+                return True
+        return False
 
     def calcular_score_autoridade(self, resultados: list[ResultadoIA]) -> ScoreDimensao:
         por_ia: dict[str, list[float]] = {}
+        ias_erro: set[str] = set()
+        ias_com_dado: set[str] = set()
+
         for r in resultados:
+            # ERRO_API não dilui a média — é dado ausente
+            if (
+                r.nivel_citacao == NivelCitacaoEnum.erro_api
+                or (r.resposta_completa or "").startswith("ERRO_")
+            ):
+                ias_erro.add(r.ia_nome)
+                continue
+            ias_com_dado.add(r.ia_nome)
             por_ia.setdefault(r.ia_nome, []).append(r.pontuacao)
 
         medias: dict[str, float] = {
             ia: (sum(vals) / len(vals) if vals else 0.0) for ia, vals in por_ia.items()
         }
 
-        # Normaliza pesos para IAs presentes
+        # IAs só com erro técnico: fora do peso (não contam como 0)
         pesos_usados = {ia: self.PESOS_IA.get(ia, 0.1) for ia in medias}
         total_peso = sum(pesos_usados.values()) or 1.0
-        score = sum(medias[ia] * (pesos_usados[ia] / total_peso) for ia in medias)
+        score = (
+            sum(medias[ia] * (pesos_usados[ia] / total_peso) for ia in medias)
+            if medias
+            else 0.0
+        )
 
         ias_citaram = [ia for ia, vals in por_ia.items() if any(v > 0 for v in vals)]
         ias_nao = [ia for ia in por_ia if ia not in ias_citaram]
+        validos = [
+            r
+            for r in resultados
+            if r.nivel_citacao != NivelCitacaoEnum.erro_api
+            and not (r.resposta_completa or "").startswith("ERRO_")
+        ]
         taxa = (
-            sum(1 for r in resultados if r.citou_empresa) / len(resultados)
-            if resultados
-            else 0.0
+            sum(1 for r in validos if r.citou_empresa) / len(validos) if validos else 0.0
         )
+        so_erro = sorted(ias_erro - ias_com_dado)
 
         return ScoreDimensao(
             nome="autoridade_citacao",
@@ -201,6 +369,7 @@ class ScoringEngine:
                 "por_ia": {k: round(v, 2) for k, v in medias.items()},
                 "ias_que_citaram": ias_citaram,
                 "ias_que_nao_citaram": ias_nao,
+                "ias_erro_api": so_erro,
                 "taxa_citacao_geral": round(taxa, 2),
             },
         )
@@ -224,12 +393,14 @@ class ScoringEngine:
         bruta = sum(
             pts for chave, pts in self.LLMO_PONTOS.items() if checks.get(chave)
         )
-        # Bônus Perplexity detalhado
+        # Bônus Perplexity com citação forte (autoridade/referência)
+        niveis_fortes = {
+            NivelCitacaoEnum.referencia,
+            NivelCitacaoEnum.autoridade,
+            NivelCitacaoEnum.detalhado,
+        }
         for r in resultados:
-            if (
-                r.ia_nome == "perplexity"
-                and r.nivel_citacao == NivelCitacaoEnum.detalhado
-            ):
+            if r.ia_nome == "perplexity" and r.nivel_citacao in niveis_fortes:
                 bruta += 1.0
                 break
         bruta = min(bruta, 10.0)
@@ -465,6 +636,7 @@ class ScoringEngine:
         self,
         bloco1_media: float | None,
         notas: dict[str, float | None] | None = None,
+        segmento: str | None = None,
     ) -> DiagnosticoPlanilha:
         """
         Monta blocos 2–6 a partir das notas manuais e calcula SCORE TOTAL.
@@ -472,16 +644,18 @@ class ScoringEngine:
         - Média do bloco = AVERAGE só das notas preenchidas (vazio ignorado).
         - Bloco sem nenhuma nota → media=None e não entra no total.
         - SCORE TOTAL = média das médias dos blocos disponíveis (inclui Bloco 1 se houver).
+        - Critérios com restrição de segmento (ex.: Doctoralia) só entram se aplicáveis.
         """
         notas = dict(notas or {})
-        validos = ids_criterios_validos()
-        # Descarta ids desconhecidos
+        definicao = blocos_para_segmento(segmento)
+        validos = ids_criterios_validos(segmento)
+        # Descarta ids desconhecidos ou fora do segmento
         notas = {k: v for k, v in notas.items() if k in validos}
 
         blocos: list[BlocoManual] = []
         medias_por_bloco: dict[str, float | None] = {"bloco1": bloco1_media}
 
-        for defn in BLOCOS_MANUAIS_DEFINICAO:
+        for defn in definicao:
             criterios: list[CriterioManualNota] = []
             preenchidas: list[float] = []
             for c in defn["criterios"]:
@@ -518,7 +692,7 @@ class ScoringEngine:
         if bloco1_media is not None:
             no_calculo.append("bloco1")
             valores.append(float(bloco1_media))
-        for defn in BLOCOS_MANUAIS_DEFINICAO:
+        for defn in definicao:
             m = medias_por_bloco.get(defn["id"])
             if m is not None:
                 no_calculo.append(defn["id"])

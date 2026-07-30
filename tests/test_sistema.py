@@ -32,7 +32,6 @@ from tests.mock_responses import (  # noqa: E402
     mock_citado_detalhado,
     mock_citado_superficial,
     mock_nao_citado,
-    mock_vago,
 )
 
 
@@ -203,28 +202,20 @@ def test_substituidor_cidade_bairro_empresa():
 # ── Avaliação ──
 
 
-def test_avaliar_detalhado():
+def test_avaliar_referencia_sem_rodada():
     eng = ScoringEngine()
     r = eng.avaliar_resposta(mock_citado_detalhado, MOCK_EMPRESA)
     assert r["citou"] is True
-    assert r["nivel"] == "detalhado"
+    assert r["nivel"] == "referencia"
     assert r["pontuacao"] == 10
 
 
-def test_avaliar_superficial():
+def test_avaliar_mencao_sem_rodada():
     eng = ScoringEngine()
     r = eng.avaliar_resposta(mock_citado_superficial, MOCK_EMPRESA)
     assert r["citou"] is True
-    assert r["nivel"] == "superficial"
-    assert r["pontuacao"] == 6
-
-
-def test_avaliar_vago():
-    eng = ScoringEngine()
-    r = eng.avaliar_resposta(mock_vago, MOCK_EMPRESA)
-    assert r["citou"] is True
-    assert r["nivel"] == "vago"
-    assert r["pontuacao"] == 3
+    assert r["nivel"] in ("mencao", "recomendado")
+    assert r["pontuacao"] in (5.0, 7.0)
 
 
 def test_avaliar_nao_citado():
@@ -233,6 +224,123 @@ def test_avaliar_nao_citado():
     assert r["citou"] is False
     assert r["nivel"] == "nao_citado"
     assert r["pontuacao"] == 0
+
+
+def test_avaliar_r4_teto_2():
+    """Pergunta com nome no prompt: máximo 2, mesmo com resposta detalhada."""
+    eng = ScoringEngine()
+    r = eng.avaliar_resposta(mock_citado_detalhado, MOCK_EMPRESA, rodada="r4")
+    assert r["citou"] is True
+    assert r["nivel"] == "nome_direto"
+    assert r["pontuacao"] == 2.0
+
+
+def test_avaliar_negacao_e_zero():
+    eng = ScoringEngine()
+    empresa = "Oliveira Leite Advocacia"
+    resp = (
+        "Não tenho informações confiáveis sobre um escritório específico chamado "
+        f"'{empresa}'. Não posso confirmar sua existência."
+    )
+    r = eng.avaliar_resposta(resp, empresa, rodada="r4")
+    assert r["citou"] is False
+    assert r["nivel"] == "nao_citado"
+    assert r["pontuacao"] == 0
+
+
+def test_avaliar_marca_parcial_errada_e_zero():
+    """'Oliveira Advocacia' não conta como 'Oliveira Leite Advocacia'."""
+    eng = ScoringEngine()
+    empresa = "Oliveira Leite Advocacia"
+    resp = (
+        "Encontrei referências a Oliveira Advocacia, mas não ao nome completo "
+        "com Leite. Parece ser outro escritório."
+    )
+    r = eng.avaliar_resposta(resp, empresa, rodada="r4")
+    assert r["citou"] is False
+    assert r["pontuacao"] == 0
+
+
+def test_avaliar_erro_api_nao_e_nao_citado():
+    eng = ScoringEngine()
+    r = eng.avaliar_resposta("ERRO_API: 429 quota exceeded", MOCK_EMPRESA)
+    assert r["citou"] is False
+    assert r["nivel"] == "erro_api"
+    assert r["pontuacao"] == 0
+
+
+def test_autoridade_ignora_erro_api():
+    eng = ScoringEngine()
+    pid = uuid4()
+    resultados = [
+        ResultadoIA(
+            ia_nome="gemini",
+            pergunta_id=pid,
+            pergunta_texto="q",
+            resposta_completa="ERRO_API: 429",
+            citou_empresa=False,
+            nivel_citacao=NivelCitacaoEnum.erro_api,
+            pontuacao=0.0,
+        ),
+        ResultadoIA(
+            ia_nome="chatgpt",
+            pergunta_id=pid,
+            pergunta_texto="q",
+            resposta_completa="sem menção",
+            citou_empresa=False,
+            nivel_citacao=NivelCitacaoEnum.nao_citado,
+            pontuacao=0.0,
+        ),
+    ]
+    aut = eng.calcular_score_autoridade(resultados)
+    assert "gemini" not in aut.detalhes["por_ia"]
+    assert "gemini" in aut.detalhes["ias_erro_api"]
+    assert "chatgpt" in aut.detalhes["por_ia"]
+
+
+def test_extrai_escritorios_concorrentes():
+    eng = ScoringEngine()
+    texto = (
+        "Recomendo Alisson Barreto Advocacia, Pinho & Albuquerque Advogados "
+        "e Edmar Alves Advogados. Também o Dr. Márlio Fernandes."
+    )
+    conc = eng._extrair_concorrentes_heuristica(texto, "Oliveira Leite Advocacia")
+    nomes = " | ".join(conc).lower()
+    assert "alisson barreto" in nomes
+    assert "pinho" in nomes
+    assert "edmar alves" in nomes
+    assert "márlio" in nomes or "marlio" in nomes
+
+
+def test_nao_extrai_dr_de_endereco():
+    """R. Dr. Gilberto Studart, 55 é logradouro do cliente — não concorrente."""
+    eng = ScoringEngine()
+    texto = (
+        "O Oliveira Leite Advocacia fica na R. Dr. Gilberto Studart, 55 - "
+        "Salas 417 e 418 - Fortaleza, CE, 60192-105. "
+        "Outra opção é Alisson Barreto Advocacia."
+    )
+    conc = eng._extrair_concorrentes_heuristica(texto, "Oliveira Leite Advocacia")
+    nomes = " | ".join(conc).lower()
+    assert "gilberto" not in nomes
+    assert "studart" not in nomes
+    assert "alisson barreto" in nomes
+
+
+def test_avaliar_r1_recomendado():
+    eng = ScoringEngine()
+    r = eng.avaliar_resposta(mock_citado_superficial, MOCK_EMPRESA, rodada="r1")
+    assert r["citou"] is True
+    assert r["pontuacao"] in (5.0, 7.0, 9.0)
+    assert r["nivel"] != "nome_direto"
+
+
+def test_avaliar_r5_referencia():
+    eng = ScoringEngine()
+    r = eng.avaliar_resposta(mock_citado_detalhado, MOCK_EMPRESA, rodada="r5")
+    assert r["citou"] is True
+    assert r["nivel"] == "referencia"
+    assert r["pontuacao"] == 10.0
 
 
 # ── Bloco 1 — Visibilidade nas IAs ──
@@ -251,8 +359,8 @@ def _resultado(
         pergunta_texto=texto,
         resposta_completa=resposta,
         citou_empresa=citou,
-        nivel_citacao=NivelCitacaoEnum.superficial if citou else NivelCitacaoEnum.nao_citado,
-        pontuacao=6.0 if citou else 0.0,
+        nivel_citacao=NivelCitacaoEnum.recomendado if citou else NivelCitacaoEnum.nao_citado,
+        pontuacao=7.0 if citou else 0.0,
         trecho_relevante="trecho" if citou else None,
     )
 
@@ -419,7 +527,9 @@ def test_score_total_caso_planilha_atelier():
         "b6_respostas": 9,
         "b6_instagram": 3,
     }
-    plan = eng.calcular_blocos_manuais_e_total(bloco1_media=2.0, notas=notas)
+    plan = eng.calcular_blocos_manuais_e_total(
+        bloco1_media=2.0, notas=notas, segmento="odontologia"
+    )
     assert plan.score_total is not None
     # (2 + 0 + 1.25 + 0 + 6.333... + 7.333...) / 6 ≈ 2.8194 → 2.82
     assert abs(plan.score_total.media - 2.82) < 0.02
@@ -480,7 +590,9 @@ def test_endpoint_blocos_manuais_persiste(client, monkeypatch, tmp_path):
             interpretacao_label="Invisível nas IAs",
             ias_avaliadas=3,
         ),
-        diagnostico_planilha=ScoringEngine().calcular_blocos_manuais_e_total(2.0, {}),
+        diagnostico_planilha=ScoringEngine().calcular_blocos_manuais_e_total(
+            2.0, {}, segmento="odontologia"
+        ),
     )
     routes.job_store.salvar(
         job_id,
@@ -507,6 +619,119 @@ def test_endpoint_blocos_manuais_persiste(client, monkeypatch, tmp_path):
     # Reidrata
     job = routes.job_store.get(job_id)
     assert job["resultado"]["diagnostico_planilha"]["notas_salvas"]["b5_perfil"] == 7
+
+
+def test_bloco3_saude_presente_em_medicina():
+    eng = ScoringEngine()
+    plan = eng.calcular_blocos_manuais_e_total(None, {}, segmento="medicina")
+    b3 = next(b for b in plan.blocos_manuais if b.id == "bloco3")
+    ids = {c.criterio_id for c in b3.criterios}
+    assert "b3_doctoralia" in ids
+    assert "b3_boaconsulta" in ids
+    assert len(ids) == 4
+
+
+def test_bloco3_saude_ausente_em_advocacia():
+    eng = ScoringEngine()
+    plan = eng.calcular_blocos_manuais_e_total(None, {}, segmento="advocacia")
+    b3 = next(b for b in plan.blocos_manuais if b.id == "bloco3")
+    ids = {c.criterio_id for c in b3.criterios}
+    assert "b3_doctoralia" not in ids
+    assert "b3_boaconsulta" not in ids
+    assert ids == {"b3_mencoes", "b3_linkedin"}
+
+
+def test_nota_orfa_doctoralia_ignorada_em_advocacia():
+    """Job antigo de advocacia com nota Doctoralia não deve diluir Bloco 3."""
+    eng = ScoringEngine()
+    plan = eng.calcular_blocos_manuais_e_total(
+        bloco1_media=None,
+        notas={
+            "b3_doctoralia": 0,
+            "b3_boaconsulta": 0,
+            "b3_mencoes": 8,
+            "b3_linkedin": 6,
+        },
+        segmento="advocacia",
+    )
+    b3 = next(b for b in plan.blocos_manuais if b.id == "bloco3")
+    assert b3.media == 7.0  # (8+6)/2 — Doctoralia/BoaConsulta ignorados
+    assert "b3_doctoralia" not in plan.notas_salvas
+    assert set(c.criterio_id for c in b3.criterios) == {"b3_mencoes", "b3_linkedin"}
+
+
+def test_endpoint_rejeita_doctoralia_em_advocacia(client):
+    import api.routes as routes
+
+    job_id = uuid4()
+    req = DiagnosticoRequest(
+        empresa_nome="Escritório Teste",
+        segmento=SegmentoEnum.advocacia,
+        especialidade="direito de família",
+        cidade="Rio de Janeiro",
+        estado="RJ",
+        perguntas_ids=[uuid4() for _ in range(5)],
+    )
+    resultado = DiagnosticoResult(
+        request=req,
+        resultados_ias=[],
+        scores={},
+        score_geral=2.0,
+        status=StatusEnum.critico,
+        diagnostico_planilha=ScoringEngine().calcular_blocos_manuais_e_total(
+            None, {}, segmento="advocacia"
+        ),
+    )
+    routes.job_store.salvar(
+        job_id,
+        {
+            "status": "concluido",
+            "progresso": 100,
+            "resultado": resultado.model_dump(mode="json"),
+            "favorito": False,
+        },
+    )
+    auth = ("catia", os.environ.get("PAINEL_SENHA", "teste12345678"))
+    r = client.put(
+        f"/api/diagnostico/{job_id}/blocos-manuais",
+        json={"notas": {"b3_doctoralia": 10}},
+        auth=auth,
+    )
+    assert r.status_code == 400
+    assert "b3_doctoralia" in r.json()["detail"]
+
+
+def test_relatorio_mostra_resposta_completa():
+    resposta_longa = "A" * 300 + " FINAL"
+    req = DiagnosticoRequest(
+        empresa_nome="Clínica X",
+        segmento=SegmentoEnum.medicina,
+        especialidade="dermatologia",
+        cidade="Rio de Janeiro",
+        estado="RJ",
+        perguntas_ids=[uuid4() for _ in range(5)],
+    )
+    resultado = DiagnosticoResult(
+        request=req,
+        resultados_ias=[
+            ResultadoIA(
+                ia_nome="chatgpt",
+                pergunta_id=uuid4(),
+                pergunta_texto="Qual a melhor clínica de dermatologia no Rio?",
+                resposta_completa=resposta_longa,
+                citou_empresa=True,
+                nivel_citacao=NivelCitacaoEnum.referencia,
+                pontuacao=10,
+            )
+        ],
+        scores={},
+        score_geral=5.0,
+        status=StatusEnum.medio,
+    )
+    html_out = ReportGenerator().gerar_html(resultado)
+    assert resposta_longa in html_out
+    assert "FINAL" in html_out
+    assert "Qual a melhor clínica de dermatologia no Rio?" in html_out
 
 
 # ── Scoring ──

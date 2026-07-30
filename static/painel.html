@@ -699,7 +699,13 @@ function renderResultado() {
     detalhado: 'citado detalhado',
     superficial: 'citado',
     vago: 'vago',
-    nao_citado: 'nao_citado',
+    nao_citado: 'não citado (0)',
+    nome_direto: 'nome direto (2)',
+    mencao: 'menção (5)',
+    recomendado: 'recomendado (7)',
+    autoridade: 'autoridade (9)',
+    referencia: 'referência (10)',
+    erro_api: 'erro de API',
   }[n] || n);
   const acordeao = Object.entries(porIa).map(([ia, items]) => `
     <details class="card"><summary><strong>${ia}</strong></summary>
